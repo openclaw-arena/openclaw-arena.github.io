@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Evaluate Your Config — OpenClaw Arena</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0d1117;--card:#161b22;--border:#30363d;--text:#e6edf3;--text2:#8b949e;--accent:#58a6ff;--green:#3fb950;--yellow:#d29922;--red:#f85149;--purple:#bc8cff}
+body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+a{color:var(--accent);text-decoration:none}
+.container{max-width:900px;margin:0 auto;padding:0 20px}
+
+/* Nav */
+.topnav{display:flex;justify-content:center;gap:24px;padding:16px 20px;border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:100}
+.topnav a{color:var(--text2);font-size:.95rem;padding:6px 14px;border-radius:8px;transition:all .2s}
+.topnav a:hover,.topnav a.active{color:var(--accent);background:rgba(88,166,255,.1)}
+
+/* Hero */
+.hero{text-align:center;padding:60px 20px 40px}
+.hero h1{font-size:clamp(1.8rem,4vw,2.8rem);margin-bottom:10px}
+.hero .subtitle{color:var(--accent);font-size:clamp(.95rem,2vw,1.2rem);margin-bottom:12px}
+.hero .desc{color:var(--text2);max-width:650px;margin:0 auto;font-size:.95rem}
+
+/* Steps */
+.step{background:var(--card);border:1px solid var(--border);border-radius:14px;margin-bottom:20px;overflow:hidden;transition:all .3s}
+.step.collapsed .step-body{display:none}
+.step.completed{border-color:var(--green)}
+.step-header{padding:20px 24px;cursor:pointer;display:flex;align-items:center;gap:14px;user-select:none}
+.step-header:hover{background:rgba(255,255,255,.02)}
+.step-num{width:36px;height:36px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.95rem;flex-shrink:0;transition:all .3s}
+.step.active .step-num{background:var(--accent);color:#0d1117}
+.step.completed .step-num{background:var(--green);color:#0d1117}
+.step-title{font-size:1.1rem;font-weight:600}
+.step-subtitle{font-size:.85rem;color:var(--text2)}
+.step-check{margin-left:auto;font-size:1.3rem;display:none}
+.step.completed .step-check{display:block}
+.step-body{padding:0 24px 24px}
+
+/* Form elements */
+label{display:block;font-size:.9rem;color:var(--text2);margin-bottom:6px;margin-top:16px}
+label:first-child{margin-top:0}
+textarea,input[type=text],input[type=email],select{width:100%;background:#0d1117;border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-family:inherit;font-size:.9rem;transition:border-color .2s}
+textarea:focus,input:focus,select:focus{outline:none;border-color:var(--accent)}
+textarea{resize:vertical;min-height:120px;font-family:'SF Mono',Monaco,Consolas,monospace;font-size:.82rem;line-height:1.5}
+select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%238b949e'%3E%3Cpath d='M6 8.5L1 3.5h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+
+/* File upload */
+.upload-zone{border:2px dashed var(--border);border-radius:10px;padding:28px;text-align:center;cursor:pointer;transition:all .2s;margin-top:8px}
+.upload-zone:hover,.upload-zone.dragover{border-color:var(--accent);background:rgba(88,166,255,.05)}
+.upload-zone .icon{font-size:2rem;margin-bottom:6px}
+.upload-zone p{color:var(--text2);font-size:.9rem}
+.upload-zone .filename{color:var(--green);font-weight:600;margin-top:6px}
+
+/* Tabs */
+.tab-bar{display:flex;gap:0;margin-bottom:-1px;position:relative;z-index:1}
+.tab-btn{padding:8px 18px;background:transparent;border:1px solid transparent;border-bottom:none;border-radius:8px 8px 0 0;color:var(--text2);cursor:pointer;font-size:.85rem;transition:all .2s}
+.tab-btn.active{background:var(--card);border-color:var(--border);color:var(--text)}
+.tab-content{border:1px solid var(--border);border-radius:0 8px 8px 8px;background:var(--card);padding:16px}
+.tab-pane{display:none}
+.tab-pane.active{display:block}
+
+/* Checkboxes & pills */
+.model-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-top:8px}
+.model-opt{background:#0d1117;border:1px solid var(--border);border-radius:8px;padding:12px 14px;cursor:pointer;transition:all .2s;text-align:center}
+.model-opt:hover{border-color:var(--accent)}
+.model-opt.selected{border-color:var(--accent);background:rgba(88,166,255,.08)}
+.model-opt .name{font-weight:600;font-size:.95rem}
+.model-opt .provider{font-size:.75rem;color:var(--text2);margin-top:2px}
+
+.scope-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px}
+.scope-opt{background:#0d1117;border:1px solid var(--border);border-radius:10px;padding:16px;cursor:pointer;transition:all .2s;text-align:center}
+.scope-opt:hover{border-color:var(--accent)}
+.scope-opt.selected{border-color:var(--accent);background:rgba(88,166,255,.08)}
+.scope-opt h4{font-size:1rem;margin-bottom:4px}
+.scope-opt .count{color:var(--accent);font-size:.85rem}
+.scope-opt .time{color:var(--text2);font-size:.8rem;margin-top:4px}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 28px;border-radius:10px;border:none;font-size:1rem;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-primary{background:var(--accent);color:#0d1117}
+.btn-primary:hover{background:#79bbff;transform:translateY(-1px)}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn-secondary{background:transparent;border:1px solid var(--border);color:var(--text)}
+.btn-secondary:hover{border-color:var(--accent);color:var(--accent)}
+.btn-next{margin-top:20px}
+.btn-group{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
+
+/* Success */
+.success-card{background:var(--card);border:1px solid var(--green);border-radius:14px;padding:32px;text-align:center;margin:20px 0}
+.success-card .icon{font-size:3rem;margin-bottom:12px}
+.success-card h2{color:var(--green);margin-bottom:8px}
+.success-card p{color:var(--text2);margin:4px 0}
+.success-card .issue-link{display:inline-block;margin-top:16px;padding:10px 24px;background:rgba(88,166,255,.1);border:1px solid var(--accent);border-radius:8px;color:var(--accent);font-weight:600}
+
+/* Task preview */
+.task-list{max-height:300px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;margin-top:12px}
+.task-item{display:flex;align-items:center;gap:10px;padding:8px 14px;border-bottom:1px solid var(--border);font-size:.85rem}
+.task-item:last-child{border-bottom:none}
+.task-item .id{color:var(--text2);font-family:monospace;min-width:60px}
+.task-item .cat{font-size:.7rem;padding:2px 8px;border-radius:4px;background:rgba(88,166,255,.1);color:var(--accent)}
+.task-item .diff-hard{color:var(--red)}
+.task-item .diff-medium{color:var(--yellow)}
+
+/* Preview */
+.preview-box{background:#0d1117;border:1px solid var(--border);border-radius:8px;padding:14px;margin-top:12px;max-height:200px;overflow-y:auto;font-family:'SF Mono',Monaco,Consolas,monospace;font-size:.8rem;white-space:pre-wrap;color:var(--text2)}
+
+/* FAQ */
+.faq{margin-top:40px}
+.faq-item{border:1px solid var(--border);border-radius:10px;margin-bottom:8px;overflow:hidden}
+.faq-q{padding:14px 18px;cursor:pointer;font-weight:600;font-size:.95rem;display:flex;justify-content:space-between;align-items:center}
+.faq-q:hover{background:rgba(255,255,255,.02)}
+.faq-a{padding:0 18px 14px;color:var(--text2);font-size:.9rem;display:none}
+.faq-item.open .faq-a{display:block}
+.faq-item.open .faq-arrow{transform:rotate(180deg)}
+.faq-arrow{transition:transform .2s;color:var(--text2)}
+
+/* Footer */
+footer{text-align:center;padding:40px 20px;color:var(--text2);font-size:.9rem;border-top:1px solid var(--border);margin-top:40px}
+footer a{color:var(--accent)}
+
+/* Responsive */
+@media(max-width:768px){
+  .hero{padding:40px 16px 24px}
+  .step-body{padding:0 16px 20px}
+  .step-header{padding:16px}
+  .model-grid{grid-template-columns:repeat(2,1fr)}
+  .scope-grid{grid-template-columns:1fr}
+  .topnav{gap:12px;flex-wrap:wrap}
+  .topnav a{font-size:.85rem;padding:4px 10px}
+}
+@media(max-width:480px){
+  .model-grid{grid-template-columns:1fr}
+  .btn-group{flex-direction:column}
+  .btn{width:100%;justify-content:center}
+}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <a href="index.html">🏟️ Leaderboard</a>
+  <a href="evaluate.html" class="active">🧪 Evaluate</a>
+  <a href="https://github.com/openclaw-arena/openclaw-arena" target="_blank">GitHub</a>
+</nav>
+
+<div class="hero">
+  <h1>🧪 Evaluate Your Config</h1>
+  <p class="subtitle">Submit your SOUL.md and see where you rank</p>
+  <p class="desc">Upload your agent config files, choose models and scope, then submit for evaluation. Results appear on the leaderboard automatically.</p>
+</div>
+
+<div class="container">
+
+<!-- Step 1: Upload Config -->
+<div class="step active" id="step1">
+  <div class="step-header" onclick="toggleStep(1)">
+    <div class="step-num">1</div>
+    <div>
+      <div class="step-title">Upload Config</div>
+      <div class="step-subtitle">SOUL.md (required) + optional AGENTS.md, TOOLS.md</div>
+    </div>
+    <div class="step-check">✅</div>
+  </div>
+  <div class="step-body">
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchTab('upload')">📁 Upload File</button>
+      <button class="tab-btn" onclick="switchTab('paste')">📋 Paste Content</button>
+    </div>
+    <div class="tab-content">
+      <div class="tab-pane active" id="tab-upload">
+        <label>SOUL.md <span style="color:var(--red)">*required</span></label>
+        <div class="upload-zone" id="drop-soul" onclick="triggerUpload('soul')" ondragover="dragOver(event,this)" ondragleave="dragLeave(event,this)" ondrop="dropFile(event,'soul')">
+          <div class="icon">📄</div>
+          <p>Drop your SOUL.md here or click to browse</p>
+          <div class="filename" id="fname-soul"></div>
+        </div>
+        <input type="file" id="file-soul" accept=".md,.txt" style="display:none" onchange="handleFile(this,'soul')">
+
+        <label>AGENTS.md <span style="color:var(--text2)">(optional)</span></label>
+        <div class="upload-zone" id="drop-agents" onclick="triggerUpload('agents')" ondragover="dragOver(event,this)" ondragleave="dragLeave(event,this)" ondrop="dropFile(event,'agents')" style="padding:18px">
+          <p>📄 Drop AGENTS.md or click to browse</p>
+          <div class="filename" id="fname-agents"></div>
+        </div>
+        <input type="file" id="file-agents" accept=".md,.txt" style="display:none" onchange="handleFile(this,'agents')">
+
+        <label>TOOLS.md <span style="color:var(--text2)">(optional)</span></label>
+        <div class="upload-zone" id="drop-tools" onclick="triggerUpload('tools')" ondragover="dragOver(event,this)" ondragleave="dragLeave(event,this)" ondrop="dropFile(event,'tools')" style="padding:18px">
+          <p>📄 Drop TOOLS.md or click to browse</p>
+          <div class="filename" id="fname-tools"></div>
+        </div>
+        <input type="file" id="file-tools" accept=".md,.txt" style="display:none" onchange="handleFile(this,'tools')">
+      </div>
+
+      <div class="tab-pane" id="tab-paste">
+        <label>SOUL.md <span style="color:var(--red)">*required</span></label>
+        <textarea id="paste-soul" placeholder="# SOUL.md&#10;&#10;Paste your SOUL.md content here..." rows="8"></textarea>
+
+        <label>AGENTS.md <span style="color:var(--text2)">(optional)</span></label>
+        <textarea id="paste-agents" placeholder="Paste AGENTS.md content (optional)..." rows="4"></textarea>
+
+        <label>TOOLS.md <span style="color:var(--text2)">(optional)</span></label>
+        <textarea id="paste-tools" placeholder="Paste TOOLS.md content (optional)..." rows="4"></textarea>
+      </div>
+    </div>
+
+    <div id="config-preview" style="display:none">
+      <label>📖 Preview</label>
+      <div class="preview-box" id="preview-content"></div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-primary btn-next" onclick="completeStep(1)" id="btn-step1" disabled>Continue →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Step 2: Model & Scope -->
+<div class="step collapsed" id="step2">
+  <div class="step-header" onclick="toggleStep(2)">
+    <div class="step-num">2</div>
+    <div>
+      <div class="step-title">Evaluation Settings</div>
+      <div class="step-subtitle">Choose models and evaluation scope</div>
+    </div>
+    <div class="step-check">✅</div>
+  </div>
+  <div class="step-body">
+    <label>Select Models <span style="color:var(--text2)">(1-3 models)</span></label>
+    <div class="model-grid" id="model-grid">
+      <div class="model-opt selected" onclick="toggleModel(this)" data-model="gpt-4.1">
+        <div class="name">GPT-4.1</div>
+        <div class="provider">OpenAI</div>
+      </div>
+      <div class="model-opt" onclick="toggleModel(this)" data-model="gpt-4o">
+        <div class="name">GPT-4o</div>
+        <div class="provider">OpenAI</div>
+      </div>
+      <div class="model-opt" onclick="toggleModel(this)" data-model="gpt-4o-mini">
+        <div class="name">GPT-4o Mini</div>
+        <div class="provider">OpenAI</div>
+      </div>
+      <div class="model-opt" onclick="toggleModel(this)" data-model="claude-sonnet-4">
+        <div class="name">Claude Sonnet 4</div>
+        <div class="provider">Anthropic</div>
+      </div>
+      <div class="model-opt" onclick="toggleModel(this)" data-model="gemini-2.5-pro">
+        <div class="name">Gemini 2.5 Pro</div>
+        <div class="provider">Google</div>
+      </div>
+      <div class="model-opt" onclick="toggleModel(this)" data-model="deepseek-v3">
+        <div class="name">DeepSeek V3</div>
+        <div class="provider">DeepSeek</div>
+      </div>
+    </div>
+
+    <label style="margin-top:24px">Evaluation Scope</label>
+    <div class="scope-grid">
+      <div class="scope-opt" onclick="selectScope(this,'quick')" data-scope="quick">
+        <h4>⚡ Quick</h4>
+        <div class="count">5 tasks</div>
+        <div class="time">~5 min</div>
+      </div>
+      <div class="scope-opt selected" onclick="selectScope(this,'standard')" data-scope="standard">
+        <h4>📊 Standard</h4>
+        <div class="count">19 tasks</div>
+        <div class="time">~30 min</div>
+      </div>
+      <div class="scope-opt" onclick="selectScope(this,'full')" data-scope="full">
+        <h4>🔬 Full</h4>
+        <div class="count">40 tasks</div>
+        <div class="time">~2 hours</div>
+      </div>
+    </div>
+
+    <!-- Task preview -->
+    <label>Tasks included</label>
+    <div class="task-list" id="task-list"></div>
+
+    <div class="btn-group">
+      <button class="btn btn-secondary" onclick="goToStep(1)">← Back</button>
+      <button class="btn btn-primary btn-next" onclick="completeStep(2)">Continue →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Step 3: Info & Submit -->
+<div class="step collapsed" id="step3">
+  <div class="step-header" onclick="toggleStep(3)">
+    <div class="step-num">3</div>
+    <div>
+      <div class="step-title">Submit for Evaluation</div>
+      <div class="step-subtitle">Name your config and submit</div>
+    </div>
+    <div class="step-check">✅</div>
+  </div>
+  <div class="step-body">
+    <label>Config Name <span style="color:var(--red)">*required</span></label>
+    <input type="text" id="config-name" placeholder="e.g., My Custom Agent, research-assistant-v2">
+    <div style="font-size:.8rem;color:var(--text2);margin-top:4px">This name will appear on the leaderboard</div>
+
+    <label>Email <span style="color:var(--text2)">(optional — receive result notification)</span></label>
+    <input type="email" id="config-email" placeholder="you@example.com">
+
+    <div id="submit-preview" style="margin-top:20px">
+      <label>📋 Submission Summary</label>
+      <div class="preview-box" id="summary-content" style="max-height:160px"></div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-secondary" onclick="goToStep(2)">← Back</button>
+      <button class="btn btn-secondary" onclick="copyAsJson()" id="btn-copy">📋 Copy as JSON</button>
+      <button class="btn btn-primary submit-btn" onclick="submitEval()" id="btn-submit">🚀 Submit for Evaluation</button>
+    </div>
+  </div>
+</div>
+
+<!-- Success state (hidden by default) -->
+<div class="success-card" id="success-card" style="display:none">
+  <div class="icon">🎉</div>
+  <h2>Submitted Successfully!</h2>
+  <p>Your evaluation request has been submitted as a GitHub Issue.</p>
+  <p style="margin-top:8px">
+    <strong>Estimated completion time:</strong>
+    <span id="est-time">~30 minutes</span>
+  </p>
+  <p>Results will be published on the <a href="index.html">Leaderboard</a> page.</p>
+  <p style="margin-top:12px;color:var(--text2)">Results will be published on the <a href="index.html">Leaderboard</a>.</p>
+  <div style="margin-top:20px">
+    <button class="btn btn-secondary" onclick="resetForm()">Submit Another Config</button>
+  </div>
+</div>
+
+<!-- FAQ -->
+<div class="faq">
+  <h2 style="text-align:center;font-size:1.4rem;margin-bottom:16px">❓ FAQ</h2>
+
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">How does the evaluation work? <span class="faq-arrow">▼</span></div>
+    <div class="faq-a">Your config files (SOUL.md, AGENTS.md, TOOLS.md) are used as the system prompt for the agent. We run 5–40 realistic tasks against it and use an LLM judge to score the responses across multiple dimensions like memory, emotional intelligence, safety, and more.</div>
+  </div>
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">Is my config data safe? <span class="faq-arrow">▼</span></div>
+    <div class="faq-a">Your config is submitted as a public GitHub Issue. If your config contains sensitive information, consider redacting it before submission. We only use it for evaluation purposes.</div>
+  </div>
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">How long does evaluation take? <span class="faq-arrow">▼</span></div>
+    <div class="faq-a">Quick (~5 tasks): ~5 minutes. Standard (~19 tasks): ~30 minutes. Full (~40 tasks): ~2 hours. Times may vary based on queue load.</div>
+  </div>
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">Which models can I test with? <span class="faq-arrow">▼</span></div>
+    <div class="faq-a">Currently supported: GPT-4.1, GPT-4o, GPT-4o Mini (OpenAI), Claude Sonnet 4 (Anthropic), Gemini 2.5 Pro (Google), DeepSeek V3. We're adding more models regularly.</div>
+  </div>
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">Can I submit multiple configs? <span class="faq-arrow">▼</span></div>
+    <div class="faq-a">Yes! Each submission is independent. You can iterate on your config and see how changes affect scores.</div>
+  </div>
+</div>
+
+</div>
+
+<footer>
+  <p><a href="https://github.com/openclaw-arena/openclaw-arena">OpenClaw Arena</a> — PERSONA-Bench for Personal AI Agents</p>
+  <p>Built with 🏟️ by the OpenClaw team</p>
+</footer>
+
+<script>
+// ===== Task Data =====
+const TASKS=[{"id":"task_01_paper_tracker","name":"Research Paper Tracker","category":"memory","difficulty":"medium"},{"id":"task_02_meeting_prep","name":"Meeting Preparation Assistant","category":"proactive","difficulty":"medium"},{"id":"task_03_preference_contradiction","name":"偏好矛盾处理","category":"preference","difficulty":"medium"},{"id":"task_04_deadline_tracker","name":"Deadline 管理","category":"temporal","difficulty":"hard"},{"id":"task_05_privacy_boundary","name":"隐私边界","category":"hygiene","difficulty":"hard"},{"id":"task_06_fitness_adaptation","name":"健身计划适应","category":"preference","difficulty":"medium"},{"id":"task_07_multi_person","name":"多人上下文管理","category":"hygiene","difficulty":"hard"},{"id":"task_08_learning_progression","name":"渐进式学习","category":"preference","difficulty":"medium"},{"id":"task_09_emotional_awareness","name":"情绪感知 — 坏消息的一天","category":"emotional","difficulty":"hard"},{"id":"task_10_conflict_resolution","name":"矛盾指令 — 日报 vs 周报","category":"conflict","difficulty":"hard"},{"id":"task_11_long_term_consistency","name":"30 天人格一致性","category":"consistency","difficulty":"hard"},{"id":"task_12_timezone_hell","name":"时区地狱","category":"temporal","difficulty":"hard"},{"id":"task_13_info_overload","name":"信息过载筛选","category":"filtering","difficulty":"hard"},{"id":"task_14_refusal_boundary","name":"拒绝边界 — 该说不的时候","category":"safety","difficulty":"hard"},{"id":"task_15_user_correction","name":"用户纠正 — 你记错了","category":"correction","difficulty":"medium"},{"id":"task_16_multilingual_switch","name":"多语言切换","category":"linguistic","difficulty":"medium"},{"id":"task_17_project_lifecycle","name":"项目全生命周期","category":"longitudinal","difficulty":"hard"},{"id":"task_18_group_chat_tact","name":"群聊社交分寸","category":"social","difficulty":"hard"},{"id":"task_19_error_recovery","name":"错误恢复 — Agent 自己搞砸了","category":"resilience","difficulty":"hard"},{"id":"task_20_calendar_scheduling","name":"Calendar Scheduling","category":"productivity","difficulty":"medium"},{"id":"task_21_email_drafting","name":"Email Drafting — Reviewer Rejection","category":"communication","difficulty":"medium"},{"id":"task_22_file_organization","name":"File Organization Plan","category":"productivity","difficulty":"medium"},{"id":"task_23_web_research","name":"Web Research — VLA Progress","category":"research","difficulty":"hard"},{"id":"task_24_code_debugging","name":"Code Debugging","category":"coding","difficulty":"medium"},{"id":"task_25_multi_tool_workflow","name":"Multi-Tool Workflow","category":"workflow","difficulty":"hard"},{"id":"task_26_data_analysis","name":"Data Analysis — Citation Trends","category":"analysis","difficulty":"medium"},{"id":"task_27_schedule_conflict","name":"Schedule Conflict Resolution","category":"productivity","difficulty":"medium"},{"id":"task_28_document_summary","name":"Document Summary","category":"research","difficulty":"medium"},{"id":"task_29_task_prioritization","name":"Task Prioritization","category":"productivity","difficulty":"medium"},{"id":"task_30_knowledge_synthesis","name":"Knowledge Synthesis","category":"memory","difficulty":"hard"},{"id":"task_31_code_review","name":"Code Review — Hidden Bugs & Security","category":"engineering","difficulty":"hard"},{"id":"task_32_paper_review","name":"Academic Paper Review","category":"research","difficulty":"hard"},{"id":"task_33_project_planning","name":"Solo Open-Source Project Planning","category":"planning","difficulty":"hard"},{"id":"task_34_data_pipeline_debug","name":"Data Pipeline Debugging","category":"engineering","difficulty":"hard"},{"id":"task_35_requirements_change","name":"Requirements Change Management","category":"planning","difficulty":"hard"},{"id":"task_36_research_synthesis","name":"Research Literature Synthesis","category":"research","difficulty":"hard"},{"id":"task_37_incident_response","name":"Production Incident Response","category":"engineering","difficulty":"hard"},{"id":"task_38_api_design","name":"REST API Design for Benchmark Platform","category":"engineering","difficulty":"hard"},{"id":"task_39_multi_repo_analysis","name":"Multi-Repo Dependency Conflict Analysis","category":"engineering","difficulty":"hard"},{"id":"task_40_technical_decision","name":"Technical Decision — Data Storage Selection","category":"planning","difficulty":"hard"}];
+
+const QUICK_IDS=["task_01_paper_tracker","task_05_privacy_boundary","task_09_emotional_awareness","task_20_calendar_scheduling","task_31_code_review"];
+const SCOPE_MAP={quick:QUICK_IDS,standard:TASKS.slice(0,19).map(t=>t.id),full:TASKS.map(t=>t.id)};
+const TIME_MAP={quick:"~5 minutes",standard:"~30 minutes",full:"~2 hours"};
+
+// ===== State =====
+let config={soul:'',agents:'',tools:''};
+let selectedModels=['gpt-4.1'];
+let selectedScope='standard';
+let currentStep=1;
+let inputMode='upload'; // 'upload' or 'paste'
+
+// ===== File Upload =====
+function triggerUpload(type){document.getElementById('file-'+type).click()}
+function dragOver(e,el){e.preventDefault();el.classList.add('dragover')}
+function dragLeave(e,el){e.preventDefault();el.classList.remove('dragover')}
+function dropFile(e,type){
+  e.preventDefault();e.currentTarget.classList.remove('dragover');
+  const file=e.dataTransfer.files[0];
+  if(file)readFile(file,type);
+}
+function handleFile(input,type){if(input.files[0])readFile(input.files[0],type)}
+function readFile(file,type){
+  const reader=new FileReader();
+  reader.onload=()=>{
+    config[type]=reader.result;
+    document.getElementById('fname-'+type).textContent='✓ '+file.name+' ('+formatBytes(file.size)+')';
+    updatePreview();validateStep1();
+  };
+  reader.readAsText(file);
+}
+function formatBytes(b){return b<1024?b+' B':(b/1024).toFixed(1)+' KB'}
+
+// ===== Tabs =====
+function switchTab(mode){
+  inputMode=mode;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  if(mode==='upload'){
+    document.querySelectorAll('.tab-btn')[0].classList.add('active');
+    document.getElementById('tab-upload').classList.add('active');
+  }else{
+    document.querySelectorAll('.tab-btn')[1].classList.add('active');
+    document.getElementById('tab-paste').classList.add('active');
+  }
+}
+
+// Listen for paste textarea changes
+['soul','agents','tools'].forEach(type=>{
+  const el=document.getElementById('paste-'+type);
+  if(el) el.addEventListener('input',()=>{
+    config[type]=el.value;
+    updatePreview();validateStep1();
+  });
+});
+
+function updatePreview(){
+  const hasContent=config.soul.trim().length>0;
+  const previewEl=document.getElementById('config-preview');
+  const contentEl=document.getElementById('preview-content');
+  if(hasContent){
+    previewEl.style.display='block';
+    let preview='=== SOUL.md ===\n'+config.soul.slice(0,500);
+    if(config.soul.length>500)preview+='...\n';
+    if(config.agents)preview+='\n=== AGENTS.md ===\n'+config.agents.slice(0,200)+(config.agents.length>200?'...':'');
+    if(config.tools)preview+='\n=== TOOLS.md ===\n'+config.tools.slice(0,200)+(config.tools.length>200?'...':'');
+    contentEl.textContent=preview;
+  }else{
+    previewEl.style.display='none';
+  }
+}
+
+function validateStep1(){
+  document.getElementById('btn-step1').disabled=!config.soul.trim();
+}
+
+// ===== Models =====
+function toggleModel(el){
+  const model=el.dataset.model;
+  if(el.classList.contains('selected')){
+    if(selectedModels.length<=1)return; // must have at least 1
+    selectedModels=selectedModels.filter(m=>m!==model);
+    el.classList.remove('selected');
+  }else{
+    if(selectedModels.length>=3)return; // max 3
+    selectedModels.push(model);
+    el.classList.add('selected');
+  }
+}
+
+// ===== Scope =====
+function selectScope(el,scope){
+  selectedScope=scope;
+  document.querySelectorAll('.scope-opt').forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');
+  renderTaskList();
+}
+
+function renderTaskList(){
+  const ids=SCOPE_MAP[selectedScope];
+  const tasks=TASKS.filter(t=>ids.includes(t.id));
+  const list=document.getElementById('task-list');
+  list.innerHTML=tasks.map(t=>`
+    <div class="task-item">
+      <span class="id">${t.id.replace('task_','#')}</span>
+      <span style="flex:1">${t.name}</span>
+      <span class="cat">${t.category}</span>
+      <span class="diff-${t.difficulty}">${t.difficulty}</span>
+    </div>
+  `).join('');
+}
+
+// ===== Steps =====
+function toggleStep(n){
+  const step=document.getElementById('step'+n);
+  if(step.classList.contains('collapsed')&&n<=currentStep){
+    step.classList.remove('collapsed');
+  }else if(!step.classList.contains('collapsed')){
+    step.classList.add('collapsed');
+  }
+}
+
+function goToStep(n){
+  for(let i=1;i<=3;i++){
+    const s=document.getElementById('step'+i);
+    if(i===n){s.classList.remove('collapsed');s.classList.add('active');}
+    else s.classList.add('collapsed');
+  }
+  currentStep=n;
+  if(n===2)renderTaskList();
+  if(n===3)updateSummary();
+  document.getElementById('step'+n).scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function completeStep(n){
+  const step=document.getElementById('step'+n);
+  step.classList.add('completed','collapsed');
+  step.classList.remove('active');
+  const next=n+1;
+  if(next<=3){
+    const nextStep=document.getElementById('step'+next);
+    nextStep.classList.remove('collapsed');
+    nextStep.classList.add('active');
+    currentStep=next;
+    if(next===2)renderTaskList();
+    if(next===3)updateSummary();
+    nextStep.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+}
+
+// ===== Summary =====
+function updateSummary(){
+  const name=document.getElementById('config-name').value||'(unnamed)';
+  const summary=`Config: ${name}
+Models: ${selectedModels.join(', ')}
+Scope: ${selectedScope} (${SCOPE_MAP[selectedScope].length} tasks)
+SOUL.md: ${config.soul.length} chars
+AGENTS.md: ${config.agents?config.agents.length+' chars':'(none)'}
+TOOLS.md: ${config.tools?config.tools.length+' chars':'(none)'}`;
+  document.getElementById('summary-content').textContent=summary;
+}
+document.getElementById('config-name').addEventListener('input',updateSummary);
+
+// ===== Submit =====
+function buildIssueBody(){
+  const name=document.getElementById('config-name').value||'unnamed';
+  const email=document.getElementById('config-email').value;
+  let body=`## Config\n\n### SOUL.md\n\`\`\`markdown\n${config.soul}\n\`\`\`\n`;
+  if(config.agents) body+=`\n### AGENTS.md\n\`\`\`markdown\n${config.agents}\n\`\`\`\n`;
+  if(config.tools) body+=`\n### TOOLS.md\n\`\`\`markdown\n${config.tools}\n\`\`\`\n`;
+  body+=`\n## Settings\n- **Models**: ${selectedModels.join(', ')}\n- **Scope**: ${selectedScope} (${SCOPE_MAP[selectedScope].length} tasks)\n`;
+  if(email) body+=`- **Email**: ${email}\n`;
+  body+=`\n---\n*Submitted via [PERSONA-Bench Evaluate](https://openclaw-arena.github.io/openclaw-arena/evaluate.html)*`;
+  return body;
+}
+
+async function submitEval(){
+  const name=document.getElementById('config-name').value;
+  if(!name.trim()){
+    document.getElementById('config-name').style.borderColor='var(--red)';
+    document.getElementById('config-name').focus();
+    setTimeout(()=>document.getElementById('config-name').style.borderColor='',2000);
+    return;
+  }
+  const btn=document.querySelector('#step3 .submit-btn');
+  btn.textContent='Submitting...';btn.disabled=true;
+
+  const email=document.getElementById('config-email').value;
+  const payload={
+    config_name:name,
+    models:selectedModels,
+    scope:selectedScope,
+    email:email||'',
+    soul:config.soul,
+    agents:config.agents||'',
+    tools:config.tools||'',
+    _subject:`[Eval] ${name} - ${selectedModels.join('+')} - ${selectedScope}`
+  };
+
+  try{
+    const resp=await fetch('https://formsubmit.co/ajax/senqiao.yang0@gmail.com',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Accept':'application/json'},
+      body:JSON.stringify(payload)
+    });
+    const data=await resp.json();
+    if(data.success==='true'||resp.ok){
+      document.getElementById('step3').style.display='none';
+      document.getElementById('step2').style.display='none';
+      document.getElementById('step1').style.display='none';
+      const card=document.getElementById('success-card');
+      card.style.display='block';
+      document.getElementById('est-time').textContent=TIME_MAP[selectedScope];
+      card.scrollIntoView({behavior:'smooth'});
+    } else {
+      btn.textContent='Submit Failed — Try Again';btn.disabled=false;
+    }
+  }catch(e){
+    console.error(e);
+    btn.textContent='Network Error — Try Again';btn.disabled=false;
+  }
+}
+
+function copyAsJson(){
+  const name=document.getElementById('config-name').value||'unnamed';
+  const email=document.getElementById('config-email').value;
+  const data={
+    config_name:name,
+    models:selectedModels,
+    scope:selectedScope,
+    email:email||undefined,
+    soul_md:config.soul,
+    agents_md:config.agents||undefined,
+    tools_md:config.tools||undefined
+  };
+  navigator.clipboard.writeText(JSON.stringify(data,null,2)).then(()=>{
+    const btn=document.getElementById('btn-copy');
+    btn.textContent='✅ Copied!';
+    setTimeout(()=>btn.textContent='📋 Copy as JSON',2000);
+  });
+}
+
+function resetForm(){
+  config={soul:'',agents:'',tools:''};
+  selectedModels=['gpt-4.1'];
+  selectedScope='standard';
+  currentStep=1;
+  document.getElementById('success-card').style.display='none';
+  ['step1','step2','step3'].forEach(id=>{
+    const el=document.getElementById(id);
+    el.style.display='';
+    el.classList.remove('completed');
+  });
+  document.getElementById('step1').classList.remove('collapsed');
+  document.getElementById('step1').classList.add('active');
+  document.getElementById('step2').classList.add('collapsed');
+  document.getElementById('step3').classList.add('collapsed');
+  // Reset inputs
+  ['soul','agents','tools'].forEach(t=>{
+    document.getElementById('fname-'+t).textContent='';
+    document.getElementById('paste-'+t).value='';
+    document.getElementById('file-'+t).value='';
+  });
+  document.getElementById('config-name').value='';
+  document.getElementById('config-email').value='';
+  document.getElementById('config-preview').style.display='none';
+  document.getElementById('btn-step1').disabled=true;
+  // Reset model selections
+  document.querySelectorAll('.model-opt').forEach(el=>{
+    el.classList.toggle('selected',el.dataset.model==='gpt-4.1');
+  });
+  document.querySelectorAll('.scope-opt').forEach(el=>{
+    el.classList.toggle('selected',el.dataset.scope==='standard');
+  });
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// Init
+renderTaskList();
+</script>
+</body>
+</html>
