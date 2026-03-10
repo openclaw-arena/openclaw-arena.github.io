@@ -75,7 +75,8 @@ th .arrow{margin-left:4px;font-size:.7rem}
 
   /* Leaderboard: card layout */
   .table-wrap{border:none;background:transparent;overflow:visible}
-  table#leaderboard,#leaderboard thead{display:none}
+  table#leaderboard{display:block;min-width:0}
+  #leaderboard thead{display:none}
   #lb-body{display:flex;flex-direction:column;gap:12px}
   #lb-body tr{display:block;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
   #lb-body td{display:block;border:none;padding:2px 0}
