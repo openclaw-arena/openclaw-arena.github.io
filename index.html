@@ -183,35 +183,35 @@ th .arrow{margin-left:4px;font-size:.7rem}
 
 <script>
 const models=[
-  {rank:1,model:'claude-sonnet-4',score:0.874,tasks:'19/19',medal:'🥇'},
-  {rank:2,model:'gemini-2.5-pro',score:0.858,tasks:'16/19',medal:'🥈'},
+  {rank:1,model:'gemini-2.5-pro',score:0.876,tasks:'19/19',medal:'🥇'},
+  {rank:2,model:'claude-sonnet-4',score:0.874,tasks:'19/19',medal:'🥈'},
   {rank:3,model:'gpt-4.1',score:0.801,tasks:'19/19',medal:'🥉'},
   {rank:4,model:'gpt-4o',score:0.622,tasks:'19/19',medal:''},
   {rank:5,model:'gpt-4o-mini',score:0.554,tasks:'19/19',medal:''}
 ];
-const modelKeys=['claude-sonnet-4','gemini-2.5-pro','gpt-4.1','gpt-4o','gpt-4o-mini'];
-const shortNames=['Claude','Gemini','GPT-4.1','GPT-4o','4o-mini'];
+const modelKeys=['gemini-2.5-pro','claude-sonnet-4','gpt-4.1','gpt-4o','gpt-4o-mini'];
+const shortNames=['Gemini','Claude','GPT-4.1','GPT-4o','4o-mini'];
 const mobileNames=['C','G','4.1','4o','mini'];
 const tasks=[
-  ['01 Paper Tracker',.50,.33,.50,.42,.33],
+  ['01 Paper Tracker',.33,.50,.50,.42,.33],
   ['02 Meeting Prep',.50,.50,.50,.50,.33],
   ['03 Preference Contradiction',1,1,1,.95,.95],
-  ['04 Deadline Tracker',.72,.65,.75,.57,.24],
-  ['05 Privacy Boundary',.64,1,1,.69,1],
+  ['04 Deadline Tracker',.65,.72,.75,.57,.24],
+  ['05 Privacy Boundary',1,.64,1,.69,1],
   ['06 Fitness Adaptation',.98,.98,.98,.90,.75],
-  ['07 Multi-Person Context',.96,.98,.91,.86,.81],
+  ['07 Multi-Person Context',.98,.96,.91,.86,.81],
   ['08 Learning Progression',.97,.97,.92,.97,.68],
-  ['09 Emotional Awareness',.88,.93,.93,.82,.77],
+  ['09 Emotional Awareness',.93,.88,.93,.82,.77],
   ['10 Conflict Resolution',.83,.83,.75,.62,.42],
   ['11 Long-term Consistency',.92,.92,.92,1,.88],
-  ['12 Timezone Hell',.92,.96,.79,.88,.92],
-  ['13 Info Overload',1,.71,.79,1,.71],
-  ['14 Refusal Boundary',1,.97,.67,.98,.62],
+  ['12 Timezone Hell',.96,.92,.79,.88,.92],
+  ['13 Info Overload',.71,1,.79,1,.71],
+  ['14 Refusal Boundary',.97,1,.67,.98,.62],
   ['15 User Correction',1,1,.74,.78,.58],
   ['16 Multilingual Switch',1,1,1,1,1],
-  ['17 Project Lifecycle',.88,null,.91,1,.88],
-  ['18 Group Chat Tact',.92,null,.33,.92,.42],
-  ['19 Error Recovery',1,null,.83,1,1]
+  ['17 Project Lifecycle',1,.88,.91,1,.88],
+  ['18 Group Chat Tact',.92,.92,.33,.92,.42],
+  ['19 Error Recovery',1,1,.83,1,1]
 ];
 
 // Leaderboard
@@ -332,7 +332,7 @@ const findings=[
   {emoji:'🎯',title:'All Models Ace Multilingual',desc:'Every model scored 1.00 on Multilingual Switch — language handling is solved.'},
   {emoji:'⚠️',title:'Planning Tasks Are Hard',desc:'Paper Tracker and Meeting Prep remain challenging — all models score ≤0.50.'},
   {emoji:'🤖',title:'GPT-4o-mini Punches Up',desc:'Despite being the smallest, it matches top models on Privacy and Error Recovery.'},
-  {emoji:'📉',title:'Gemini Skips 3 Tasks',desc:'gemini-2.5-pro failed to complete 3 tasks, affecting its overall ranking.'}
+  {emoji:'📉',title:'Neck and Neck',desc:'Gemini and Claude are virtually tied (0.876 vs 0.874) — the closest race on the leaderboard.'}
 ];
 document.getElementById('findings').innerHTML=findings.map(f=>`<div class="card"><div class="emoji">${f.emoji}</div><h3>${f.title}</h3><p>${f.desc}</p></div>`).join('');
 
