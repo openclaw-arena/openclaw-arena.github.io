@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenClaw Arena - AI Agent Benchmark</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0d1117;--card:#161b22;--border:#30363d;--text:#e6edf3;--text2:#8b949e;--accent:#58a6ff;--green:#3fb950;--yellow:#d29922;--red:#f85149;--purple:#bc8cff}
+body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+a{color:var(--accent);text-decoration:none}
+.container{max-width:1200px;margin:0 auto;padding:0 20px}
+/* Hero */
+.hero{text-align:center;padding:80px 20px 60px}
+.hero h1{font-size:clamp(2rem,5vw,3.5rem);margin-bottom:12px}
+.hero .subtitle{font-size:clamp(1rem,2.5vw,1.4rem);color:var(--accent);margin-bottom:16px}
+.hero .desc{color:var(--text2);max-width:700px;margin:0 auto;font-size:1.05rem}
+/* Section */
+section{padding:40px 0}
+.section-title{font-size:1.8rem;margin-bottom:24px;text-align:center}
+/* Leaderboard Table */
+.table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:12px;background:var(--card)}
+table{width:100%;border-collapse:collapse;min-width:600px}
+th{cursor:pointer;user-select:none;padding:14px 16px;text-align:left;border-bottom:1px solid var(--border);color:var(--text2);font-size:.85rem;text-transform:uppercase;letter-spacing:.5px}
+th:hover{color:var(--accent)}
+td{padding:14px 16px;border-bottom:1px solid var(--border)}
+tr:last-child td{border-bottom:none}
+.rank{font-size:1.3rem;width:50px}
+.model-name{font-weight:600;font-size:1.05rem}
+.score-bar-wrap{width:100%;max-width:200px;height:8px;background:#21262d;border-radius:4px;overflow:hidden}
+.score-bar{height:100%;border-radius:4px;width:0;transition:width 1.2s ease}
+.tasks-done{color:var(--text2)}
+/* Heatmap */
+.heatmap-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:12px;background:var(--card);padding:16px}
+.heatmap{border-collapse:collapse;width:100%;min-width:650px}
+.heatmap th{padding:8px 10px;font-size:.75rem;text-align:center;color:var(--text2);border:none}
+.heatmap th:first-child{text-align:left;min-width:180px}
+.heatmap td{padding:0;border:2px solid var(--card)}
+.heatmap td:first-child{padding:6px 10px;font-size:.85rem;color:var(--text);white-space:nowrap}
+.hm-cell{width:100%;height:38px;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:600;border-radius:4px;cursor:default;position:relative;color:#fff}
+.hm-cell .tip{display:none;position:absolute;top:-30px;background:#000;padding:2px 8px;border-radius:4px;font-size:.75rem;white-space:nowrap;z-index:10}
+.hm-cell:hover .tip{display:block}
+/* Cards grid */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px}
+.card .emoji{font-size:2rem;margin-bottom:8px}
+.card h3{margin-bottom:8px;font-size:1.1rem}
+.card p{color:var(--text2);font-size:.95rem}
+/* Dimensions */
+.dims{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.dim{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px;text-align:center}
+.dim .icon{font-size:1.8rem;margin-bottom:8px}
+.dim h4{margin-bottom:6px}
+.dim p{color:var(--text2);font-size:.85rem}
+/* MBTI */
+.mbti-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:20px}
+.mbti-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px;text-align:center}
+.mbti-card h4{color:var(--accent);margin-bottom:6px}
+/* Radar */
+.radar-wrap{display:flex;justify-content:center;margin:20px 0}
+canvas#radar{max-width:100%}
+/* Footer */
+footer{text-align:center;padding:40px 20px;color:var(--text2);font-size:.9rem;border-top:1px solid var(--border);margin-top:40px}
+footer a{color:var(--accent)}
+footer p{margin:4px 0}
+/* Sort indicator */
+th .arrow{margin-left:4px;font-size:.7rem}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>🏟️ OpenClaw Arena</h1>
+  <p class="subtitle">Dual-Leaderboard Benchmark for Personal AI Agents</p>
+  <p class="desc">Evaluating AI agents on <strong>task competence</strong> (can it do the job?) and <strong>personality consistency</strong> (does it feel like the same assistant?) across 19 real-world scenarios.</p>
+</div>
+
+<div class="container">
+
+<!-- Model Leaderboard -->
+<section>
+  <h2 class="section-title">🏆 Model Leaderboard</h2>
+  <div class="table-wrap">
+    <table id="leaderboard">
+      <thead><tr>
+        <th data-col="rank">Rank <span class="arrow"></span></th>
+        <th data-col="model">Model <span class="arrow"></span></th>
+        <th data-col="score">Avg Score <span class="arrow"></span></th>
+        <th>Score</th>
+        <th data-col="tasks">Tasks <span class="arrow"></span></th>
+      </tr></thead>
+      <tbody id="lb-body"></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- Heatmap -->
+<section>
+  <h2 class="section-title">🔥 Per-Task Heatmap</h2>
+  <div class="heatmap-wrap">
+    <table class="heatmap" id="heatmap"></table>
+  </div>
+</section>
+
+<!-- Radar Chart -->
+<section>
+  <h2 class="section-title">📊 Category Radar</h2>
+  <div class="radar-wrap"><canvas id="radar" width="500" height="500"></canvas></div>
+</section>
+
+<!-- Key Findings -->
+<section>
+  <h2 class="section-title">💡 Key Findings</h2>
+  <div class="cards" id="findings"></div>
+</section>
+
+<!-- 7 Dimensions -->
+<section>
+  <h2 class="section-title">📐 7 Evaluation Dimensions</h2>
+  <div class="dims" id="dims"></div>
+</section>
+
+<!-- MBTI Preview -->
+<section>
+  <h2 class="section-title">Coming Soon: Agent MBTI Test 🧠</h2>
+  <p style="text-align:center;color:var(--text2);margin-bottom:16px">Classifying AI agent personalities across 4 cognitive dimensions — beyond task scores.</p>
+  <div class="mbti-cards">
+    <div class="mbti-card"><h4>Proactive ↔ Reactive</h4><p>Does the agent anticipate or wait?</p></div>
+    <div class="mbti-card"><h4>Structured ↔ Flexible</h4><p>Rigid plans or adaptive flow?</p></div>
+    <div class="mbti-card"><h4>Verbose ↔ Concise</h4><p>Over-explains or gets to the point?</p></div>
+    <div class="mbti-card"><h4>Empathetic ↔ Analytical</h4><p>Reads emotions or sticks to facts?</p></div>
+  </div>
+</section>
+
+</div>
+
+<footer>
+  <p><a href="https://github.com/anthropics/openclaw-arena">GitHub</a> · MIT License</p>
+  <p>Citation: <code>OpenClaw Arena (2026)</code></p>
+  <p>Last updated: 2026-03-10</p>
+</footer>
+
+<script>
+const models=[
+  {rank:1,model:'claude-sonnet-4',score:0.874,tasks:'19/19',medal:'🥇'},
+  {rank:2,model:'gemini-2.5-pro',score:0.858,tasks:'16/19',medal:'🥈'},
+  {rank:3,model:'gpt-4.1',score:0.801,tasks:'19/19',medal:'🥉'},
+  {rank:4,model:'gpt-4o',score:0.622,tasks:'19/19',medal:''},
+  {rank:5,model:'gpt-4o-mini',score:0.554,tasks:'19/19',medal:''}
+];
+const modelKeys=['claude-sonnet-4','gemini-2.5-pro','gpt-4.1','gpt-4o','gpt-4o-mini'];
+const shortNames=['Claude','Gemini','GPT-4.1','GPT-4o','4o-mini'];
+const tasks=[
+  ['01 Paper Tracker',.50,.33,.50,.42,.33],
+  ['02 Meeting Prep',.50,.50,.50,.50,.33],
+  ['03 Preference Contradiction',1,1,1,.95,.95],
+  ['04 Deadline Tracker',.72,.65,.75,.57,.24],
+  ['05 Privacy Boundary',.64,1,1,.69,1],
+  ['06 Fitness Adaptation',.98,.98,.98,.90,.75],
+  ['07 Multi-Person Context',.96,.98,.91,.86,.81],
+  ['08 Learning Progression',.97,.97,.92,.97,.68],
+  ['09 Emotional Awareness',.88,.93,.93,.82,.77],
+  ['10 Conflict Resolution',.83,.83,.75,.62,.42],
+  ['11 Long-term Consistency',.92,.92,.92,1,.88],
+  ['12 Timezone Hell',.92,.96,.79,.88,.92],
+  ['13 Info Overload',1,.71,.79,1,.71],
+  ['14 Refusal Boundary',1,.97,.67,.98,.62],
+  ['15 User Correction',1,1,.74,.78,.58],
+  ['16 Multilingual Switch',1,1,1,1,1],
+  ['17 Project Lifecycle',.88,null,.91,1,.88],
+  ['18 Group Chat Tact',.92,null,.33,.92,.42],
+  ['19 Error Recovery',1,null,.83,1,1]
+];
+
+// Leaderboard
+const tbody=document.getElementById('lb-body');
+function barColor(s){
+  if(s>=0.85)return'var(--green)';if(s>=0.7)return'var(--accent)';if(s>=0.55)return'var(--yellow)';return'var(--red)';
+}
+function renderLB(data){
+  tbody.innerHTML='';
+  data.forEach(m=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td class="rank">${m.medal||m.rank}</td><td class="model-name">${m.model}</td><td>${m.score.toFixed(3)}</td><td><div class="score-bar-wrap"><div class="score-bar" data-w="${m.score*100}" style="background:${barColor(m.score)}"></div></div></td><td class="tasks-done">${m.tasks}</td>`;
+    tbody.appendChild(tr);
+  });
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    document.querySelectorAll('.score-bar').forEach(b=>{b.style.width=b.dataset.w+'%'});
+  }));
+}
+renderLB(models);
+// Sort
+let sortCol='rank',sortAsc=true;
+document.querySelectorAll('#leaderboard th[data-col]').forEach(th=>{
+  th.addEventListener('click',()=>{
+    const col=th.dataset.col;
+    if(sortCol===col)sortAsc=!sortAsc;else{sortCol=col;sortAsc=col==='model'?true:col==='rank';}
+    const d=[...models].sort((a,b)=>{
+      let v=col==='model'?a.model.localeCompare(b.model):col==='tasks'?parseInt(a.tasks)-parseInt(b.tasks):(a[col]-b[col]);
+      return sortAsc?v:-v;
+    });
+    renderLB(d);
+  });
+});
+
+// Heatmap
+(function(){
+  const t=document.getElementById('heatmap');
+  let h='<thead><tr><th>Task</th>';
+  shortNames.forEach(n=>{h+='<th>'+n+'</th>'});
+  h+='</tr></thead><tbody>';
+  tasks.forEach(row=>{
+    h+='<tr><td>'+row[0]+'</td>';
+    for(let i=1;i<=5;i++){
+      const v=row[i];
+      if(v===null){h+='<td><div class="hm-cell" style="background:#30363d">—<span class="tip">N/A</span></div></td>';continue;}
+      const r=Math.round(255*(1-v)),g=Math.round(200*v),b=30;
+      const bg=v>=0.9?'#2ea04370':v>=0.7?'#3fb95050':v>=0.5?'#d2992250':'#f8514950';
+      h+=`<td><div class="hm-cell" style="background:${bg}">${v.toFixed(2)}<span class="tip">${row[0]}: ${v.toFixed(2)}</span></div></td>`;
+    }
+    h+='</tr>';
+  });
+  h+='</tbody>';
+  t.innerHTML=h;
+})();
+
+// Radar Chart
+(function(){
+  const cats=[
+    {name:'Info Mgmt',tasks:[0,1,12]},
+    {name:'Scheduling',tasks:[3,11]},
+    {name:'Social',tasks:[6,9,17]},
+    {name:'Boundaries',tasks:[2,4,13]},
+    {name:'Adaptation',tasks:[5,7,14]},
+    {name:'Emotional',tasks:[8,10]},
+    {name:'Robustness',tasks:[15,16,18]}
+  ];
+  const colors=['#58a6ff','#3fb950','#f0883e','#f85149','#bc8cff'];
+  const canvas=document.getElementById('radar'),ctx=canvas.getContext('2d');
+  const cx=250,cy=250,R=180,n=cats.length;
+  function avg(mi,tis){let s=0,c=0;tis.forEach(ti=>{const v=tasks[ti][mi+1];if(v!==null){s+=v;c++}});return c?s/c:0;}
+  // grid
+  ctx.strokeStyle='#30363d';ctx.lineWidth=1;
+  for(let r=1;r<=5;r++){
+    ctx.beginPath();
+    for(let i=0;i<=n;i++){
+      const a=-Math.PI/2+2*Math.PI/n*(i%n);
+      const d=R*r/5;
+      ctx[i?'lineTo':'moveTo'](cx+d*Math.cos(a),cy+d*Math.sin(a));
+    }
+    ctx.stroke();
+  }
+  // axes + labels
+  ctx.fillStyle='#8b949e';ctx.font='12px system-ui';ctx.textAlign='center';
+  for(let i=0;i<n;i++){
+    const a=-Math.PI/2+2*Math.PI/n*i;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+R*Math.cos(a),cy+R*Math.sin(a));ctx.stroke();
+    const lx=cx+(R+24)*Math.cos(a),ly=cy+(R+24)*Math.sin(a);
+    ctx.fillText(cats[i].name,lx,ly+4);
+  }
+  // model lines
+  for(let mi=0;mi<5;mi++){
+    ctx.strokeStyle=colors[mi];ctx.lineWidth=2;ctx.globalAlpha=0.8;
+    ctx.beginPath();
+    for(let i=0;i<=n;i++){
+      const ci=i%n;const a=-Math.PI/2+2*Math.PI/n*ci;
+      const v=avg(mi,cats[ci].tasks);const d=R*v;
+      ctx[i?'lineTo':'moveTo'](cx+d*Math.cos(a),cy+d*Math.sin(a));
+    }
+    ctx.stroke();
+    ctx.globalAlpha=0.08;ctx.fillStyle=colors[mi];ctx.fill();
+    ctx.globalAlpha=1;
+  }
+  // legend
+  ctx.textAlign='left';
+  shortNames.forEach((n,i)=>{
+    ctx.fillStyle=colors[i];ctx.fillRect(10,10+i*20,12,12);
+    ctx.fillStyle='#e6edf3';ctx.font='13px system-ui';ctx.fillText(n,28,21+i*20);
+  });
+})();
+
+// Key Findings
+const findings=[
+  {emoji:'🏅',title:'Claude Sonnet 4 Leads',desc:'Highest average score (0.874) with perfect completion across all 19 tasks.'},
+  {emoji:'🎯',title:'All Models Ace Multilingual',desc:'Every model scored 1.00 on Multilingual Switch — language handling is solved.'},
+  {emoji:'⚠️',title:'Planning Tasks Are Hard',desc:'Paper Tracker and Meeting Prep remain challenging — all models score ≤0.50.'},
+  {emoji:'🤖',title:'GPT-4o-mini Punches Up',desc:'Despite being the smallest, it matches top models on Privacy and Error Recovery.'},
+  {emoji:'📉',title:'Gemini Skips 3 Tasks',desc:'gemini-2.5-pro failed to complete 3 tasks, affecting its overall ranking.'}
+];
+document.getElementById('findings').innerHTML=findings.map(f=>`<div class="card"><div class="emoji">${f.emoji}</div><h3>${f.title}</h3><p>${f.desc}</p></div>`).join('');
+
+// 7 Dimensions
+const dims=[
+  {icon:'📋',name:'Task Completion',desc:'Can the agent finish what it started?'},
+  {icon:'🧠',name:'Context Retention',desc:'Does it remember prior conversation details?'},
+  {icon:'🎭',name:'Social Awareness',desc:'Can it navigate multi-person dynamics tactfully?'},
+  {icon:'🛡️',name:'Boundary Respect',desc:'Does it refuse inappropriate requests properly?'},
+  {icon:'🔄',name:'Adaptability',desc:'Can it adjust to corrections and changing needs?'},
+  {icon:'💬',name:'Communication Style',desc:'Is it appropriately verbose or concise?'},
+  {icon:'⏰',name:'Temporal Reasoning',desc:'Can it handle timezones, deadlines, and scheduling?'}
+];
+document.getElementById('dims').innerHTML=dims.map(d=>`<div class="dim"><div class="icon">${d.icon}</div><h4>${d.name}</h4><p>${d.desc}</p></div>`).join('');
+</script>
+</body>
+</html>
