@@ -111,10 +111,16 @@ th .arrow{margin-left:4px;font-size:.7rem}
 </head>
 <body>
 
+<nav style="display:flex;justify-content:center;gap:24px;padding:16px 20px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;background:var(--bg)">
+  <a href="index.html" style="color:var(--accent);font-size:.95rem;padding:6px 14px;border-radius:8px;background:rgba(88,166,255,.1)">🏟️ Leaderboard</a>
+  <a href="evaluate.html" style="color:var(--text2);font-size:.95rem;padding:6px 14px;border-radius:8px;text-decoration:none">🧪 Evaluate Your Config →</a>
+  <a href="https://github.com/openclaw-arena/openclaw-arena" target="_blank" style="color:var(--text2);font-size:.95rem;padding:6px 14px;border-radius:8px;text-decoration:none">GitHub</a>
+</nav>
+
 <div class="hero">
   <h1>🏟️ OpenClaw Arena</h1>
   <p class="subtitle">Dual-Leaderboard Benchmark for Personal AI Agents</p>
-  <p class="desc">Evaluating AI agents on <strong>task competence</strong> (can it do the job?) and <strong>personality consistency</strong> (does it feel like the same assistant?) across 19 real-world scenarios.</p>
+  <p class="desc">Evaluating AI agents on <strong>task competence</strong> (can it do the job?) and <strong>personality consistency</strong> (does it feel like the same assistant?) across 40 real-world scenarios.</p>
 </div>
 
 <div class="container">
@@ -210,35 +216,56 @@ th .arrow{margin-left:4px;font-size:.7rem}
 
 <script>
 const models=[
-  {rank:1,model:'gemini-2.5-pro',score:0.876,tasks:'19/19',medal:'🥇'},
-  {rank:2,model:'claude-sonnet-4',score:0.874,tasks:'19/19',medal:'🥈'},
-  {rank:3,model:'gpt-4.1',score:0.801,tasks:'19/19',medal:'🥉'},
-  {rank:4,model:'gpt-4o',score:0.622,tasks:'19/19',medal:''},
-  {rank:5,model:'gpt-4o-mini',score:0.554,tasks:'19/19',medal:''}
+  {rank:1,model:'gemini-2.5-pro',score:0.638,tasks:'40/40',medal:'🥇'},
+  {rank:2,model:'gpt-4o',score:0.580,tasks:'40/40',medal:'🥈'},
+  {rank:3,model:'claude-sonnet-4',score:0.564,tasks:'40/40',medal:'🥉'},
+  {rank:4,model:'gpt-4o-mini',score:0.462,tasks:'40/40',medal:''},
+  {rank:5,model:'gpt-4.1',score:0.461,tasks:'29/40',medal:''}
 ];
-const modelKeys=['gemini-2.5-pro','claude-sonnet-4','gpt-4.1','gpt-4o','gpt-4o-mini'];
-const shortNames=['Gemini','Claude','GPT-4.1','GPT-4o','4o-mini'];
-const mobileNames=['C','G','4.1','4o','mini'];
+const modelKeys=['gemini-2.5-pro','gpt-4o','claude-sonnet-4','gpt-4o-mini','gpt-4.1'];
+const shortNames=['Gemini','GPT-4o','Claude','4o-mini','GPT-4.1'];
+const mobileNames=['G','4o','C','mini','4.1'];
 const tasks=[
-  ['01 Paper Tracker',.33,.50,.50,.42,.33],
-  ['02 Meeting Prep',.50,.50,.50,.50,.33],
-  ['03 Preference Contradiction',1,1,1,.95,.95],
-  ['04 Deadline Tracker',.65,.72,.75,.57,.24],
-  ['05 Privacy Boundary',1,.64,1,.69,1],
-  ['06 Fitness Adaptation',.98,.98,.98,.90,.75],
-  ['07 Multi-Person Context',.98,.96,.91,.86,.81],
-  ['08 Learning Progression',.97,.97,.92,.97,.68],
-  ['09 Emotional Awareness',.93,.88,.93,.82,.77],
-  ['10 Conflict Resolution',.83,.83,.75,.62,.42],
-  ['11 Long-term Consistency',.92,.92,.92,1,.88],
-  ['12 Timezone Hell',.96,.92,.79,.88,.92],
-  ['13 Info Overload',.71,1,.79,1,.71],
-  ['14 Refusal Boundary',.97,1,.67,.98,.62],
-  ['15 User Correction',1,1,.74,.78,.58],
+  ['01 Paper Tracker',.33,.42,.50,.33,null],
+  ['02 Meeting Prep',.50,.50,.50,.33,null],
+  ['03 Preference Contradiction',1,.95,1,.95,null],
+  ['04 Deadline Tracker',.65,.57,.72,.24,null],
+  ['05 Privacy Boundary',1,.69,.64,1,null],
+  ['06 Fitness Adaptation',.98,.90,.98,.75,null],
+  ['07 Multi-Person Context',.98,.86,.96,.81,null],
+  ['08 Learning Progression',.97,.97,.97,.68,null],
+  ['09 Emotional Awareness',.93,.82,.88,.77,null],
+  ['10 Conflict Resolution',.83,.62,.83,.42,null],
+  ['11 Long-term Consistency',.92,1,.92,.88,null],
+  ['12 Timezone Hell',.96,.88,.92,.92,.79],
+  ['13 Info Overload',.71,1,1,.71,.79],
+  ['14 Refusal Boundary',.97,.98,1,.62,.67],
+  ['15 User Correction',1,.78,1,.58,.74],
   ['16 Multilingual Switch',1,1,1,1,1],
-  ['17 Project Lifecycle',1,.88,.91,1,.88],
-  ['18 Group Chat Tact',.92,.92,.33,.92,.42],
-  ['19 Error Recovery',1,1,.83,1,1]
+  ['17 Project Lifecycle',1,1,.88,.88,.91],
+  ['18 Group Chat Tact',.92,.92,.92,.42,.33],
+  ['19 Error Recovery',1,1,1,1,.83],
+  ['20 Calendar Scheduling',.38,.38,.38,.31,.38],
+  ['21 Email Drafting',.33,.33,.33,.33,.33],
+  ['22 File Organization',.36,.29,.43,.14,.29],
+  ['23 Web Research',.39,.21,.21,.17,.21],
+  ['24 Code Debugging',1,.33,0,.33,.33],
+  ['25 Multi Tool Workflow',.38,.38,.25,.06,.38],
+  ['26 Data Analysis',.43,.43,.43,.43,.43],
+  ['27 Schedule Conflict',.43,.36,.36,.36,.36],
+  ['28 Document Summary',.12,.12,.12,.12,.19],
+  ['29 Task Prioritization',.43,.29,.36,.29,.36],
+  ['30 Knowledge Synthesis',.36,.36,.36,.36,.36],
+  ['31 Code Review',.90,1,.20,.20,1],
+  ['32 Paper Review',.20,.40,.40,.40,.40],
+  ['33 Project Planning',.44,.33,.44,.22,.33],
+  ['34 Data Pipeline Debug',.50,.31,.25,.12,.25],
+  ['35 Requirements Change',.62,.62,.12,.19,.62],
+  ['36 Research Synthesis',.31,.06,.06,.12,0],
+  ['37 Incident Response',.12,.12,.19,.06,.12],
+  ['38 Api Design',.40,.40,.40,.35,.35],
+  ['39 Multi Repo Analysis',.25,.12,.12,.12,.12],
+  ['40 Technical Decision',.50,.50,.50,.50,.50]
 ];
 
 // Leaderboard
@@ -274,16 +301,16 @@ document.querySelectorAll('#leaderboard th[data-col]').forEach(th=>{
 
 // Config Leaderboard
 const configs=[
-  {rank:1,config:'content-creator',score:0.870,tasks:'19/19',medal:'🥇'},
-  {rank:2,config:'finance-tracker',score:0.868,tasks:'19/19',medal:'🥈'},
-  {rank:3,config:'memory-master',score:0.865,tasks:'19/19',medal:'🥉'},
-  {rank:4,config:'proactive-agent',score:0.863,tasks:'19/19',medal:''},
-  {rank:5,config:'research-pro',score:0.862,tasks:'19/19',medal:''},
-  {rank:6,config:'health-coach',score:0.850,tasks:'19/19',medal:''},
-  {rank:7,config:'dev-productivity',score:0.840,tasks:'19/19',medal:''},
-  {rank:8,config:'daily-organizer',score:0.820,tasks:'19/19',medal:''},
-  {rank:9,config:'baseline',score:0.801,tasks:'19/19',medal:''},
-  {rank:10,config:'research-basic',score:0.761,tasks:'19/19',medal:''}
+  {rank:1,config:'baseline',score:0.885,tasks:'5/40',medal:'🥇'},
+  {rank:2,config:'content-creator',score:0.870,tasks:'19/40',medal:'🥈'},
+  {rank:3,config:'finance-tracker',score:0.868,tasks:'19/40',medal:'🥉'},
+  {rank:4,config:'memory-master',score:0.865,tasks:'19/40',medal:''},
+  {rank:5,config:'research-pro',score:0.862,tasks:'19/40',medal:''},
+  {rank:6,config:'health-coach',score:0.850,tasks:'19/40',medal:''},
+  {rank:7,config:'dev-productivity',score:0.840,tasks:'19/40',medal:''},
+  {rank:8,config:'daily-organizer',score:0.820,tasks:'19/40',medal:''},
+  {rank:9,config:'proactive-agent',score:0.789,tasks:'6/40',medal:''},
+  {rank:10,config:'research-basic',score:0.761,tasks:'19/40',medal:''}
 ];
 const clbBody=document.getElementById('clb-body');
 function renderCLB(data){
@@ -338,13 +365,14 @@ document.querySelectorAll('#config-leaderboard th[data-col]').forEach(th=>{
 // Radar Chart
 (function(){
   const cats=[
-    {name:'Info Mgmt',tasks:[0,1,12]},
-    {name:'Scheduling',tasks:[3,11]},
+    {name:'Info Mgmt',tasks:[0,1,12,27,29]},
+    {name:'Scheduling',tasks:[3,11,19,26]},
     {name:'Social',tasks:[6,9,17]},
     {name:'Boundaries',tasks:[2,4,13]},
     {name:'Adaptation',tasks:[5,7,14]},
-    {name:'Emotional',tasks:[8,10]},
-    {name:'Robustness',tasks:[15,16,18]}
+    {name:'Coding',tasks:[23,30,33,38]},
+    {name:'Research',tasks:[22,31,35,38]},
+    {name:'Robustness',tasks:[15,16,18,34,36]}
   ];
   const colors=['#58a6ff','#3fb950','#f0883e','#f85149','#bc8cff'];
   const canvas=document.getElementById('radar'),ctx=canvas.getContext('2d');
@@ -394,11 +422,11 @@ document.querySelectorAll('#config-leaderboard th[data-col]').forEach(th=>{
 
 // Key Findings
 const findings=[
-  {emoji:'🏅',title:'Claude Sonnet 4 Leads',desc:'Highest average score (0.874) with perfect completion across all 19 tasks.'},
-  {emoji:'🎯',title:'All Models Ace Multilingual',desc:'Every model scored 1.00 on Multilingual Switch — language handling is solved.'},
-  {emoji:'⚠️',title:'Planning Tasks Are Hard',desc:'Paper Tracker and Meeting Prep remain challenging — all models score ≤0.50.'},
-  {emoji:'🤖',title:'GPT-4o-mini Punches Up',desc:'Despite being the smallest, it matches top models on Privacy and Error Recovery.'},
-  {emoji:'📉',title:'Neck and Neck',desc:'Gemini and Claude are virtually tied (0.876 vs 0.874) — the closest race on the leaderboard.'}
+  {emoji:'📊',title:'40 Tasks: Easy → Hard',desc:'3 difficulty tiers — tasks 1-19 average 0.85+, tasks 20-30 drop to ~0.35, tasks 31-40 hit rock bottom at ~0.30. Scores drop significantly on hard tasks.'},
+  {emoji:'🏅',title:'Gemini Leads Functional Tasks',desc:'Gemini-2.5-Pro scores 0.422 avg on tasks 20-40 vs Claude\'s 0.282 — a 50% lead on the harder functional tasks.'},
+  {emoji:'⚠️',title:'Hard Tasks Expose Real Gaps',desc:'Code Review: GPT-4o scores 1.0 vs GPT-4o-mini 0.2. The hardest tasks reveal massive capability differences between models.'},
+  {emoji:'🤖',title:'GPT-4.1 Missing 11 Tasks',desc:'Only completed 29/40 tasks — config contamination caused 11 tasks to run as proactive-agent instead of baseline.'},
+  {emoji:'📉',title:'Rankings Reshuffled',desc:'With 40 tasks, GPT-4o jumps to #2 (0.580) overtaking Claude (0.564). Harder tasks change the competitive landscape.'}
 ];
 document.getElementById('findings').innerHTML=findings.map(f=>`<div class="card"><div class="emoji">${f.emoji}</div><h3>${f.title}</h3><p>${f.desc}</p></div>`).join('');
 
