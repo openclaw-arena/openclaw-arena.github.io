@@ -75,15 +75,15 @@ th .arrow{margin-left:4px;font-size:.7rem}
 
   /* Leaderboard: card layout */
   .table-wrap{border:none;background:transparent;overflow:visible}
-  table#leaderboard{display:block;min-width:0}
-  #leaderboard thead{display:none}
-  #lb-body{display:flex;flex-direction:column;gap:12px}
-  #lb-body tr{display:block;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
-  #lb-body td{display:block;border:none;padding:2px 0}
-  #lb-body td.rank{font-size:1.5rem;margin-bottom:4px}
-  #lb-body td.model-name{font-size:1.1rem;margin-bottom:6px}
-  #lb-body .score-bar-wrap{max-width:100%;margin-top:6px}
-  #lb-body td.tasks-done{font-size:.85rem;margin-top:4px}
+  table#leaderboard,table#config-leaderboard{display:block;min-width:0}
+  #leaderboard thead,#config-leaderboard thead{display:none}
+  #lb-body,#clb-body{display:flex;flex-direction:column;gap:12px}
+  #lb-body tr,#clb-body tr{display:block;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
+  #lb-body td,#clb-body td{display:block;border:none;padding:2px 0}
+  #lb-body td.rank,#clb-body td.rank{font-size:1.5rem;margin-bottom:4px}
+  #lb-body td.model-name,#clb-body td.model-name{font-size:1.1rem;margin-bottom:6px}
+  #lb-body .score-bar-wrap,#clb-body .score-bar-wrap{max-width:100%;margin-top:6px}
+  #lb-body td.tasks-done,#clb-body td.tasks-done{font-size:.85rem;margin-top:4px}
 
   /* Heatmap: compact */
   .heatmap{min-width:auto!important}
@@ -133,6 +133,32 @@ th .arrow{margin-left:4px;font-size:.7rem}
       </tr></thead>
       <tbody id="lb-body"></tbody>
     </table>
+  </div>
+</section>
+
+<!-- Config Leaderboard -->
+<section>
+  <h2 class="section-title">👤 Config Leaderboard (gpt-4.1)</h2>
+  <p style="text-align:center;color:var(--text2);margin-bottom:20px;font-size:.95rem">Same model, different SOUL.md — how much does config matter?</p>
+  <div class="table-wrap">
+    <table id="config-leaderboard">
+      <thead><tr>
+        <th data-col="rank">Rank <span class="arrow"></span></th>
+        <th data-col="config">Config <span class="arrow"></span></th>
+        <th data-col="score">Avg Score <span class="arrow"></span></th>
+        <th>Score</th>
+        <th data-col="tasks">Tasks <span class="arrow"></span></th>
+      </tr></thead>
+      <tbody id="clb-body"></tbody>
+    </table>
+  </div>
+  <div style="margin-top:20px;display:flex;flex-direction:column;gap:12px">
+    <div class="card" style="border-left:3px solid var(--accent)">
+      <p style="font-size:1rem"><strong>📊 Config Impact:</strong> Top config scores <span style="color:var(--green);font-weight:700">14.4% higher</span> than the weakest (0.870 vs 0.761)</p>
+    </div>
+    <div class="card" style="border-left:3px solid var(--yellow)">
+      <p style="font-size:1rem">Even the <strong>baseline config</strong> (0.801) underperforms <span style="color:var(--yellow);font-weight:700">8 out of 10</span> custom configs</p>
+    </div>
   </div>
 </section>
 
@@ -243,6 +269,45 @@ document.querySelectorAll('#leaderboard th[data-col]').forEach(th=>{
       return sortAsc?v:-v;
     });
     renderLB(d);
+  });
+});
+
+// Config Leaderboard
+const configs=[
+  {rank:1,config:'content-creator',score:0.870,tasks:'19/19',medal:'🥇'},
+  {rank:2,config:'finance-tracker',score:0.868,tasks:'19/19',medal:'🥈'},
+  {rank:3,config:'memory-master',score:0.865,tasks:'19/19',medal:'🥉'},
+  {rank:4,config:'proactive-agent',score:0.863,tasks:'19/19',medal:''},
+  {rank:5,config:'research-pro',score:0.862,tasks:'19/19',medal:''},
+  {rank:6,config:'health-coach',score:0.850,tasks:'19/19',medal:''},
+  {rank:7,config:'dev-productivity',score:0.840,tasks:'19/19',medal:''},
+  {rank:8,config:'daily-organizer',score:0.820,tasks:'19/19',medal:''},
+  {rank:9,config:'baseline',score:0.801,tasks:'19/19',medal:''},
+  {rank:10,config:'research-basic',score:0.761,tasks:'19/19',medal:''}
+];
+const clbBody=document.getElementById('clb-body');
+function renderCLB(data){
+  clbBody.innerHTML='';
+  data.forEach(m=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td class="rank">${m.medal||m.rank}</td><td class="model-name">${m.config}</td><td>${m.score.toFixed(3)}</td><td><div class="score-bar-wrap"><div class="score-bar" data-w="${m.score*100}" style="background:${barColor(m.score)}"></div></div></td><td class="tasks-done">${m.tasks}</td>`;
+    clbBody.appendChild(tr);
+  });
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    clbBody.querySelectorAll('.score-bar').forEach(b=>{b.style.width=b.dataset.w+'%'});
+  }));
+}
+renderCLB(configs);
+let clbSortCol='rank',clbSortAsc=true;
+document.querySelectorAll('#config-leaderboard th[data-col]').forEach(th=>{
+  th.addEventListener('click',()=>{
+    const col=th.dataset.col;
+    if(clbSortCol===col)clbSortAsc=!clbSortAsc;else{clbSortCol=col;clbSortAsc=col==='config'?true:col==='rank';}
+    const d=[...configs].sort((a,b)=>{
+      let v=col==='config'?a.config.localeCompare(b.config):col==='tasks'?parseInt(a.tasks)-parseInt(b.tasks):(a[col]-b[col]);
+      return clbSortAsc?v:-v;
+    });
+    renderCLB(d);
   });
 });
 
