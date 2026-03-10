@@ -65,6 +65,47 @@ footer a{color:var(--accent)}
 footer p{margin:4px 0}
 /* Sort indicator */
 th .arrow{margin-left:4px;font-size:.7rem}
+
+/* ===== Mobile Optimizations ===== */
+@media(max-width:768px){
+  body{overflow-x:hidden}
+  .hero{padding:40px 16px 30px}
+  .hero .desc{font-size:.95rem}
+  .section-title{font-size:1.4rem;margin-bottom:16px}
+
+  /* Leaderboard: card layout */
+  .table-wrap{border:none;background:transparent;overflow:visible}
+  table#leaderboard,#leaderboard thead{display:none}
+  #lb-body{display:flex;flex-direction:column;gap:12px}
+  #lb-body tr{display:block;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
+  #lb-body td{display:block;border:none;padding:2px 0}
+  #lb-body td.rank{font-size:1.5rem;margin-bottom:4px}
+  #lb-body td.model-name{font-size:1.1rem;margin-bottom:6px}
+  #lb-body .score-bar-wrap{max-width:100%;margin-top:6px}
+  #lb-body td.tasks-done{font-size:.85rem;margin-top:4px}
+
+  /* Heatmap: compact */
+  .heatmap{min-width:auto!important}
+  .heatmap th{padding:4px 3px;font-size:.65rem}
+  .heatmap th:first-child{min-width:auto;max-width:90px;overflow:hidden;text-overflow:ellipsis}
+  .heatmap td:first-child{font-size:.7rem;padding:3px 4px;max-width:90px;overflow:hidden;text-overflow:ellipsis}
+  .hm-cell{height:28px;font-size:.65rem;border-radius:3px}
+
+  /* Cards & Dims */
+  .cards,.dims,.mbti-cards{grid-template-columns:1fr!important;gap:10px}
+  .card,.dim,.mbti-card{padding:16px}
+}
+@media(max-width:480px){
+  .hero{padding:28px 12px 20px}
+  .hero h1{font-size:1.6rem}
+  .hero .subtitle{font-size:.95rem}
+  .container{padding:0 12px}
+  section{padding:24px 0}
+  .card,.dim,.mbti-card{padding:14px}
+  .card h3{font-size:1rem}
+  .card p,.dim p{font-size:.85rem}
+  footer{padding:24px 12px;font-size:.8rem}
+}
 </style>
 </head>
 <body>
@@ -105,7 +146,7 @@ th .arrow{margin-left:4px;font-size:.7rem}
 <!-- Radar Chart -->
 <section>
   <h2 class="section-title">📊 Category Radar</h2>
-  <div class="radar-wrap"><canvas id="radar" width="500" height="500"></canvas></div>
+  <div class="radar-wrap"><canvas id="radar" style="width:min(500px,90vw);height:min(500px,90vw)"></canvas></div>
 </section>
 
 <!-- Key Findings -->
@@ -150,6 +191,7 @@ const models=[
 ];
 const modelKeys=['claude-sonnet-4','gemini-2.5-pro','gpt-4.1','gpt-4o','gpt-4o-mini'];
 const shortNames=['Claude','Gemini','GPT-4.1','GPT-4o','4o-mini'];
+const mobileNames=['C','G','4.1','4o','mini'];
 const tasks=[
   ['01 Paper Tracker',.50,.33,.50,.42,.33],
   ['02 Meeting Prep',.50,.50,.50,.50,.33],
@@ -207,10 +249,13 @@ document.querySelectorAll('#leaderboard th[data-col]').forEach(th=>{
 (function(){
   const t=document.getElementById('heatmap');
   let h='<thead><tr><th>Task</th>';
-  shortNames.forEach(n=>{h+='<th>'+n+'</th>'});
+  const isMobile=window.innerWidth<768;
+  const hNames=isMobile?mobileNames:shortNames;
+  hNames.forEach(n=>{h+='<th>'+n+'</th>'});
   h+='</tr></thead><tbody>';
   tasks.forEach(row=>{
-    h+='<tr><td>'+row[0]+'</td>';
+    const tName=isMobile?row[0].replace(/^\d+\s*/,'').substring(0,10):row[0];
+    h+='<tr><td>'+tName+'</td>';
     for(let i=1;i<=5;i++){
       const v=row[i];
       if(v===null){h+='<td><div class="hm-cell" style="background:#30363d">—<span class="tip">N/A</span></div></td>';continue;}
@@ -237,7 +282,9 @@ document.querySelectorAll('#leaderboard th[data-col]').forEach(th=>{
   ];
   const colors=['#58a6ff','#3fb950','#f0883e','#f85149','#bc8cff'];
   const canvas=document.getElementById('radar'),ctx=canvas.getContext('2d');
-  const cx=250,cy=250,R=180,n=cats.length;
+  const sz=Math.min(500,window.innerWidth*0.9);
+  canvas.width=sz;canvas.height=sz;
+  const cx=sz/2,cy=sz/2,R=sz*0.36,n=cats.length;
   function avg(mi,tis){let s=0,c=0;tis.forEach(ti=>{const v=tasks[ti][mi+1];if(v!==null){s+=v;c++}});return c?s/c:0;}
   // grid
   ctx.strokeStyle='#30363d';ctx.lineWidth=1;
@@ -251,11 +298,11 @@ document.querySelectorAll('#leaderboard th[data-col]').forEach(th=>{
     ctx.stroke();
   }
   // axes + labels
-  ctx.fillStyle='#8b949e';ctx.font='12px system-ui';ctx.textAlign='center';
+  ctx.fillStyle='#8b949e';ctx.font=(sz<400?'10':'12')+'px system-ui';ctx.textAlign='center';
   for(let i=0;i<n;i++){
     const a=-Math.PI/2+2*Math.PI/n*i;
     ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+R*Math.cos(a),cy+R*Math.sin(a));ctx.stroke();
-    const lx=cx+(R+24)*Math.cos(a),ly=cy+(R+24)*Math.sin(a);
+    const lx=cx+(R+20)*Math.cos(a),ly=cy+(R+20)*Math.sin(a);
     ctx.fillText(cats[i].name,lx,ly+4);
   }
   // model lines
