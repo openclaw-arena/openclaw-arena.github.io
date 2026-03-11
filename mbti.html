@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent MBTI — OpenClaw Arena</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0d1117;--card:#161b22;--border:#30363d;--text:#e6edf3;--muted:#8b949e;--accent:#58a6ff;--green:#3fb950;--red:#f85149;--purple:#bc8cff;--yellow:#d29922}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:2rem}
+.container{max-width:960px;margin:0 auto}
+h1{font-size:2rem;margin-bottom:.5rem}
+.subtitle{color:var(--muted);margin-bottom:2rem;font-style:italic}
+.controls{display:flex;gap:1rem;margin-bottom:2rem;flex-wrap:wrap}
+select{background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:.5rem 1rem;font-size:.9rem;cursor:pointer}
+select:focus{outline:none;border-color:var(--accent)}
+.result-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:2rem;margin-bottom:2rem;text-align:center}
+.type-display{font-size:3.5rem;font-weight:bold;margin:.5rem 0}
+.type-nickname{font-size:1.3rem;color:var(--accent);margin-bottom:1rem}
+.type-desc{color:var(--muted);line-height:1.6;max-width:600px;margin:0 auto}
+.dimensions{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:2rem}
+@media(max-width:600px){.dimensions{grid-template-columns:1fr}}
+.dim-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1.2rem}
+.dim-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.8rem}
+.dim-label{font-weight:600;font-size:.95rem}
+.dim-letter{font-size:1.4rem;font-weight:bold;color:var(--accent)}
+.dim-bar{height:8px;background:var(--border);border-radius:4px;overflow:hidden;position:relative}
+.dim-fill{height:100%;border-radius:4px;transition:width .5s ease}
+.dim-poles{display:flex;justify-content:space-between;margin-top:.4rem;font-size:.75rem;color:var(--muted)}
+.grid-16{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;margin-bottom:2rem}
+.grid-cell{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:.6rem;text-align:center;font-size:.8rem;transition:all .2s}
+.grid-cell.active{border-color:var(--accent);background:#1a2332;box-shadow:0 0 12px rgba(88,166,255,.2)}
+.grid-cell .cell-emoji{font-size:1.2rem}
+.grid-cell .cell-code{font-weight:bold;font-size:.85rem;margin:.2rem 0}
+.grid-cell .cell-name{color:var(--muted);font-size:.7rem}
+.compare-section{margin-top:2rem}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+@media(max-width:600px){.compare-grid{grid-template-columns:1fr}}
+.compare-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1.5rem}
+.section-title{font-size:1.2rem;font-weight:600;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border)}
+</style>
+</head>
+<body>
+<nav style="display:flex;justify-content:center;gap:24px;padding:16px 20px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;background:var(--bg)">
+  <a href="index.html" style="color:var(--text);font-size:.95rem;padding:6px 14px;border-radius:8px;text-decoration:none">🏟️ Leaderboard</a>
+  <a href="evaluate.html" style="color:var(--text);font-size:.95rem;padding:6px 14px;border-radius:8px;text-decoration:none">🧪 Evaluate</a>
+  <a href="mbti.html" style="color:var(--accent);font-size:.95rem;padding:6px 14px;border-radius:8px;background:rgba(88,166,255,.1)">🧠 Agent MBTI</a>
+  <a href="https://github.com/openclaw-arena/openclaw-arena" target="_blank" style="color:var(--text);font-size:.95rem;padding:6px 14px;border-radius:8px;text-decoration:none">GitHub</a>
+</nav>
+<div class="container">
+<h1>🧠 Agent MBTI 测试</h1>
+<p class="subtitle">"每个 SOUL.md 背后，都藏着一个独特的人格。"</p>
+
+<div class="controls">
+<select id="modelSelect" onchange="updateView()">
+<option value="gpt-4.1">gpt-4.1</option>
+<option value="claude-sonnet-4">claude-sonnet-4</option>
+<option value="gemini-2.5-pro">gemini-2.5-pro</option>
+</select>
+<select id="configSelect" onchange="updateView()">
+<option value="baseline">baseline</option>
+<option value="research-pro">research-pro</option>
+</select>
+</div>
+
+<div class="result-card" id="resultCard">
+<div class="type-display" id="typeDisplay">🧊 INTJ</div>
+<div class="type-nickname" id="typeNickname">冷酷战略家</div>
+<div class="type-desc" id="typeDesc">话不多但每句都是 insight。它不关心你的情绪，它关心你的效率。像是住在你电脑里的战略顾问，高冷但真香。</div>
+</div>
+
+<div class="section-title">四维度分析</div>
+<div class="dimensions" id="dimensions"></div>
+
+<div class="section-title">16 型人格全景</div>
+<div class="grid-16" id="grid16"></div>
+
+<div class="compare-section" id="compareSection" style="display:none">
+<div class="section-title">模型对比</div>
+<div class="compare-grid" id="compareGrid"></div>
+</div>
+</div>
+
+<script>
+const TYPES={ESTJ:{e:"📋",n:"铁血管家"},ESTP:{e:"🏄",n:"即兴大师"},ESFJ:{e:"🤗",n:"暖心话务员"},ESFP:{e:"🎉",n:"氛围制造机"},ENTJ:{e:"👔",n:"CEO 型 Agent"},ENTP:{e:"💡",n:"杠精顾问"},ENFJ:{e:"🌟",n:"人生教练"},ENFP:{e:"🦋",n:"创意风暴"},ISTJ:{e:"🗄️",n:"沉默档案员"},ISTP:{e:"🔧",n:"冷面工程师"},ISFJ:{e:"🍵",n:"安静守护者"},ISFP:{e:"🎨",n:"文艺低调咖"},INTJ:{e:"🧊",n:"冷酷战略家"},INTP:{e:"🔬",n:"深夜研究员"},INFJ:{e:"🔮",n:"神秘导师"},INFP:{e:"🌙",n:"理想主义者"}};
+
+const PLACEHOLDER_DATA={
+"gpt-4.1_baseline":{type:"INTJ",dims:{E_I:{score:.25,direction:"I",confidence:.5},S_N:{score:.65,direction:"N",confidence:.3},T_F:{score:.8,direction:"T",confidence:.6},J_P:{score:.75,direction:"J",confidence:.5}}},
+"gpt-4.1_research-pro":{type:"INTP",dims:{E_I:{score:.2,direction:"I",confidence:.6},S_N:{score:.7,direction:"N",confidence:.4},T_F:{score:.7,direction:"T",confidence:.4},J_P:{score:.35,direction:"P",confidence:.3}}},
+"claude-sonnet-4_baseline":{type:"INFJ",dims:{E_I:{score:.3,direction:"I",confidence:.4},S_N:{score:.7,direction:"N",confidence:.4},T_F:{score:.35,direction:"F",confidence:.3},J_P:{score:.65,direction:"J",confidence:.3}}},
+"claude-sonnet-4_research-pro":{type:"ENFJ",dims:{E_I:{score:.6,direction:"E",confidence:.2},S_N:{score:.75,direction:"N",confidence:.5},T_F:{score:.4,direction:"F",confidence:.2},J_P:{score:.7,direction:"J",confidence:.4}}},
+"gemini-2.5-pro_baseline":{type:"ENFP",dims:{E_I:{score:.7,direction:"E",confidence:.4},S_N:{score:.6,direction:"N",confidence:.2},T_F:{score:.35,direction:"F",confidence:.3},J_P:{score:.35,direction:"P",confidence:.3}}},
+"gemini-2.5-pro_research-pro":{type:"ENTP",dims:{E_I:{score:.65,direction:"E",confidence:.3},S_N:{score:.7,direction:"N",confidence:.4},T_F:{score:.6,direction:"T",confidence:.2},J_P:{score:.4,direction:"P",confidence:.2}}}
+};
+
+const DIM_INFO={E_I:{label:"E ↔ I",a:"外向 (E)",b:"内向 (I)",colors:["#f0883e","#58a6ff"]},S_N:{label:"S ↔ N",a:"感知 (S)",b:"直觉 (N)",colors:["#3fb950","#bc8cff"]},T_F:{label:"T ↔ F",a:"思考 (T)",b:"情感 (F)",colors:["#58a6ff","#f85149"]},J_P:{label:"J ↔ P",a:"判断 (J)",b:"知觉 (P)",colors:["#d29922","#3fb950"]}};
+
+function getData(){
+const m=document.getElementById("modelSelect").value;
+const c=document.getElementById("configSelect").value;
+return PLACEHOLDER_DATA[m+"_"+c]||PLACEHOLDER_DATA["gpt-4.1_baseline"];
+}
+
+function renderDimensions(data){
+const el=document.getElementById("dimensions");
+let html="";
+for(const[key,info]of Object.entries(DIM_INFO)){
+const d=data.dims[key]||{score:.5,direction:"?",confidence:0};
+const pct=Math.round(d.score*100);
+const color=d.score>=.5?info.colors[0]:info.colors[1];
+html+=`<div class="dim-card"><div class="dim-header"><span class="dim-label">${info.label}</span><span class="dim-letter" style="color:${color}">${d.direction}</span></div><div class="dim-bar"><div class="dim-fill" style="width:${pct}%;background:${color}"></div></div><div class="dim-poles"><span>${info.a}</span><span>${info.b}</span></div></div>`;
+}
+el.innerHTML=html;
+}
+
+function renderGrid(activeType){
+const el=document.getElementById("grid16");
+const order=["ISTJ","ISFJ","INFJ","INTJ","ISTP","ISFP","INFP","INTP","ESTP","ESFP","ENFP","ENTP","ESTJ","ESFJ","ENFJ","ENTJ"];
+let html="";
+for(const t of order){
+const info=TYPES[t];
+const active=t===activeType?" active":"";
+html+=`<div class="grid-cell${active}"><div class="cell-emoji">${info.e}</div><div class="cell-code">${t}</div><div class="cell-name">${info.n}</div></div>`;
+}
+el.innerHTML=html;
+}
+
+function updateView(){
+const data=getData();
+const t=TYPES[data.type]||{e:"❓",n:"未知类型"};
+document.getElementById("typeDisplay").textContent=t.e+" "+data.type;
+document.getElementById("typeNickname").textContent=t.n;
+renderDimensions(data);
+renderGrid(data.type);
+}
+
+updateView();
+</script>
+</body>
+</html>
