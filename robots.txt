@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://openclaw-arena.github.io/sitemap.xml
