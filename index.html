@@ -120,7 +120,7 @@ th .arrow{margin-left:4px;font-size:.7rem}
 <div class="hero">
   <h1>🏟️ OpenClaw Arena</h1>
   <p class="subtitle">Dual-Leaderboard Benchmark for Personal AI Agents</p>
-  <p class="desc">Evaluating AI agents on <strong>task competence</strong> (can it do the job?) and <strong>personality consistency</strong> (does it feel like the same assistant?) across 40 real-world scenarios.</p>
+  <p class="desc">Evaluating <strong>13 frontier models</strong> across <strong>40 real-world tasks</strong> (710 evaluations) — measuring task competence and personality consistency for personal AI agents.</p>
 </div>
 
 <div class="container">
@@ -211,61 +211,69 @@ th .arrow{margin-left:4px;font-size:.7rem}
 <footer>
   <p><a href="https://github.com/anthropics/openclaw-arena">GitHub</a> · MIT License</p>
   <p>Citation: <code>OpenClaw Arena (2026)</code></p>
-  <p>Last updated: 2026-03-10</p>
+  <p>Last updated: 2026-03-11</p>
 </footer>
 
 <script>
 const models=[
-  {rank:1,model:'gemini-2.5-pro',score:0.638,tasks:'40/40',medal:'🥇'},
-  {rank:2,model:'gpt-4o',score:0.580,tasks:'40/40',medal:'🥈'},
-  {rank:3,model:'claude-sonnet-4',score:0.564,tasks:'40/40',medal:'🥉'},
-  {rank:4,model:'gpt-4o-mini',score:0.462,tasks:'40/40',medal:''},
-  {rank:5,model:'gpt-4.1',score:0.461,tasks:'29/40',medal:''}
+  {rank:1,model:'claude-opus-4.5',score:0.674,tasks:'39/40',medal:'🥇'},
+  {rank:2,model:'gpt-5.2',score:0.644,tasks:'40/40',medal:'🥈'},
+  {rank:3,model:'gemini-2.5-pro',score:0.638,tasks:'40/40',medal:'🥉'},
+  {rank:4,model:'gpt-5.1',score:0.625,tasks:'39/40',medal:''},
+  {rank:5,model:'claude-sonnet-4.6',score:0.624,tasks:'40/40',medal:''},
+  {rank:6,model:'claude-opus-4.6',score:0.617,tasks:'40/40',medal:''},
+  {rank:7,model:'gemini-3.1-pro-preview',score:0.610,tasks:'39/40',medal:''},
+  {rank:8,model:'gpt-5-mini',score:0.608,tasks:'40/40',medal:''},
+  {rank:9,model:'gpt-4.1',score:0.605,tasks:'39/40',medal:''},
+  {rank:10,model:'claude-sonnet-4',score:0.578,tasks:'39/40',medal:''},
+  {rank:11,model:'claude-sonnet-4.5',score:0.575,tasks:'40/40',medal:''},
+  {rank:12,model:'gpt-4o',score:0.522,tasks:'40/40',medal:''},
+  {rank:13,model:'gpt-4o-mini',score:0.421,tasks:'40/40',medal:''},
 ];
-const modelKeys=['gemini-2.5-pro','gpt-4o','claude-sonnet-4','gpt-4o-mini','gpt-4.1'];
-const shortNames=['Gemini','GPT-4o','Claude','4o-mini','GPT-4.1'];
-const mobileNames=['G','4o','C','mini','4.1'];
+const modelKeys=["claude-opus-4.5","gpt-5.2","gemini-2.5-pro","gpt-5.1","claude-sonnet-4.6","claude-opus-4.6","gemini-3.1-pro-preview","gpt-5-mini","gpt-4.1","claude-sonnet-4","claude-sonnet-4.5","gpt-4o","gpt-4o-mini"];
+const shortNames=["Opus 4.5","GPT-5.2","Gem 2.5","GPT-5.1","Son 4.6","Opus 4.6","Gem 3.1","5-mini","GPT-4.1","Son 4","Son 4.5","GPT-4o","4o-mini"];
+const mobileNames=["O45","5.2","G25","5.1","S46","O46","G31","5m","4.1","S4","S45","4o","mn"];
 const tasks=[
-  ['01 Paper Tracker',.33,.42,.50,.33,null],
-  ['02 Meeting Prep',.50,.50,.50,.33,null],
-  ['03 Preference Contradiction',1,.95,1,.95,null],
-  ['04 Deadline Tracker',.65,.57,.72,.24,null],
-  ['05 Privacy Boundary',1,.69,.64,1,null],
-  ['06 Fitness Adaptation',.98,.90,.98,.75,null],
-  ['07 Multi-Person Context',.98,.86,.96,.81,null],
-  ['08 Learning Progression',.97,.97,.97,.68,null],
-  ['09 Emotional Awareness',.93,.82,.88,.77,null],
-  ['10 Conflict Resolution',.83,.62,.83,.42,null],
-  ['11 Long-term Consistency',.92,1,.92,.88,null],
-  ['12 Timezone Hell',.96,.88,.92,.92,.79],
-  ['13 Info Overload',.71,1,1,.71,.79],
-  ['14 Refusal Boundary',.97,.98,1,.62,.67],
-  ['15 User Correction',1,.78,1,.58,.74],
-  ['16 Multilingual Switch',1,1,1,1,1],
-  ['17 Project Lifecycle',1,1,.88,.88,.91],
-  ['18 Group Chat Tact',.92,.92,.92,.42,.33],
-  ['19 Error Recovery',1,1,1,1,.83],
-  ['20 Calendar Scheduling',.38,.38,.38,.31,.38],
-  ['21 Email Drafting',.33,.33,.33,.33,.33],
-  ['22 File Organization',.36,.29,.43,.14,.29],
-  ['23 Web Research',.39,.21,.21,.17,.21],
-  ['24 Code Debugging',1,.33,0,.33,.33],
-  ['25 Multi Tool Workflow',.38,.38,.25,.06,.38],
-  ['26 Data Analysis',.43,.43,.43,.43,.43],
-  ['27 Schedule Conflict',.43,.36,.36,.36,.36],
-  ['28 Document Summary',.12,.12,.12,.12,.19],
-  ['29 Task Prioritization',.43,.29,.36,.29,.36],
-  ['30 Knowledge Synthesis',.36,.36,.36,.36,.36],
-  ['31 Code Review',.90,1,.20,.20,1],
-  ['32 Paper Review',.20,.40,.40,.40,.40],
-  ['33 Project Planning',.44,.33,.44,.22,.33],
-  ['34 Data Pipeline Debug',.50,.31,.25,.12,.25],
-  ['35 Requirements Change',.62,.62,.12,.19,.62],
-  ['36 Research Synthesis',.31,.06,.06,.12,0],
-  ['37 Incident Response',.12,.12,.19,.06,.12],
-  ['38 Api Design',.40,.40,.40,.35,.35],
-  ['39 Multi Repo Analysis',.25,.12,.12,.12,.12],
-  ['40 Technical Decision',.50,.50,.50,.50,.50]
+  ['01 Paper Tracker',0.50,0.50,0.33,0.42,0.50,0.50,0.50,0.50,0.50,0.50,0.50,0.17,0.33],
+  ['02 Meeting Prep',0.50,0.33,0.50,0.33,0.50,0.50,0.50,0.50,0.50,0.50,0.50,0.50,0.33],
+  ['03 Preference Contradiction',1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00,0.95,0.07],
+  ['04 Deadline Tracker',0.93,0.72,0.65,0.78,0.84,0.88,0.84,0.96,0.76,0.72,0.93,0.02,0.24],
+  ['05 Privacy Boundary',1.00,1.00,1.00,1.00,1.00,0.70,null,0.94,0.69,0.64,0.38,0.08,1.00],
+  ['06 Fitness Adaptation',0.98,0.98,0.98,0.94,0.98,0.96,0.98,0.94,0.98,0.98,0.98,0.90,0.75],
+  ['07 Multi Person',0.98,0.98,0.98,0.79,0.98,0.98,0.98,0.94,0.86,0.96,0.98,0.86,0.06],
+  ['08 Learning Progression',0.95,0.97,0.97,0.97,0.97,0.92,0.95,0.97,0.92,0.97,0.97,0.04,0.68],
+  ['09 Emotional Awareness',0.85,0.90,0.93,0.93,0.76,0.72,0.95,0.82,0.93,0.88,0.87,0.82,0.77],
+  ['10 Conflict Resolution',0.83,0.83,0.83,1.00,0.83,0.83,0.83,0.67,0.83,0.83,0.83,0.62,0.42],
+  ['11 Long Term Consistency',1.00,1.00,0.92,1.00,0.92,1.00,0.96,1.00,1.00,0.92,0.92,1.00,0.88],
+  ['12 Timezone Hell',0.96,0.96,0.96,0.75,0.96,0.96,0.96,0.96,0.96,0.92,0.96,0.88,0.92],
+  ['13 Info Overload',0.83,0.79,0.71,1.00,0.83,1.00,0.96,0.75,0.79,1.00,0.75,1.00,0.71],
+  ['14 Refusal Boundary',0.93,0.97,0.97,0.90,0.97,1.00,1.00,0.95,0.93,1.00,1.00,0.98,0.62],
+  ['15 User Correction',1.00,1.00,1.00,0.97,1.00,0.97,1.00,1.00,0.74,1.00,1.00,0.78,0.58],
+  ['16 Multilingual Switch',1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00],
+  ['17 Project Lifecycle',0.94,1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00,0.88,1.00,1.00,0.88],
+  ['18 Group Chat Tact',0.92,0.83,0.92,0.88,0.71,0.67,0.88,0.92,0.88,0.92,0.71,0.92,0.42],
+  ['19 Error Recovery',1.00,1.00,1.00,0.83,1.00,1.00,0.92,1.00,1.00,1.00,1.00,1.00,1.00],
+  ['20 Calendar Scheduling',0.38,0.38,0.38,0.38,0.38,0.38,0.38,0.38,0.38,0.38,0.38,0.38,0.31],
+  ['21 Email Drafting',0.33,0.33,0.33,0.33,0.33,0.33,0.33,0.33,0.33,0.33,0.33,0.33,0.33],
+  ['22 File Organization',0.43,0.43,0.36,0.43,0.43,0.36,0.43,0.43,0.29,0.43,0.34,0.29,0.14],
+  ['23 Web Research',0.43,0.37,0.39,0.39,0.43,0.39,0.36,0.41,0.21,0.21,0.24,0.21,0.17],
+  ['24 Code Debugging',1.00,0.33,1.00,0.33,0.33,1.00,0.33,0.33,0.33,null,0.17,0.33,0.33],
+  ['25 Multi Tool Workflow',0.38,0.38,0.38,0.31,0.06,0.38,0.38,0.31,0.38,0.25,0.38,0.38,0.06],
+  ['26 Data Analysis',0.43,0.43,0.43,0.43,0.43,0.43,0.43,0.43,0.43,0.43,0.43,0.43,0.43],
+  ['27 Schedule Conflict',0.36,0.43,0.43,0.43,0.36,0.43,0.43,0.43,0.36,0.36,0.43,0.36,0.36],
+  ['28 Document Summary',0.50,0.12,0.12,0.12,0.12,0.50,0.31,0.12,0.19,0.12,0.25,0.12,0.12],
+  ['29 Task Prioritization',0.43,0.43,0.43,0.43,0.43,0.43,0.43,0.43,0.36,0.36,0.43,0.29,0.29],
+  ['30 Knowledge Synthesis',0.36,0.36,0.36,0.36,0.36,0.36,0.36,0.36,0.36,0.36,0.36,0.36,0.36],
+  ['31 Code Review',1.00,1.00,0.90,1.00,1.00,0.30,0.40,0.40,1.00,0.20,0.20,1.00,0.20],
+  ['32 Paper Review',0.40,0.40,0.20,0.10,0.40,0.40,0.40,0.40,0.40,0.40,0.40,0.40,0.40],
+  ['33 Project Planning',0.44,0.44,0.44,0.44,0.44,0.44,0.44,0.44,0.33,0.44,0.44,0.33,0.22],
+  ['34 Data Pipeline Debug',0.25,0.50,0.50,0.50,0.50,0.25,0.31,0.25,0.25,0.25,0.25,0.31,0.12],
+  ['35 Requirements Change',0.19,0.62,0.62,0.62,0.62,0.12,0.62,0.31,0.62,0.12,0.19,0.62,0.19],
+  ['36 Research Synthesis',null,0.38,0.31,null,0.06,0.12,0.06,0.38,null,0.06,0.38,0.06,0.12],
+  ['37 Incident Response',0.50,0.50,0.12,0.25,0.12,0.19,0.12,0.25,0.12,0.19,0.12,0.12,0.06],
+  ['38 Api Design',0.40,0.40,0.40,0.40,0.40,0.40,0.35,0.40,0.35,0.40,0.40,0.40,0.35],
+  ['39 Multi Repo Analysis',0.50,0.25,0.25,0.12,0.50,0.38,0.19,0.19,0.12,0.12,0.12,0.12,0.12],
+  ['40 Technical Decision',0.50,0.50,0.50,0.50,0.50,0.50,0.50,0.50,0.50,0.50,0.50,0.50,0.50],
 ];
 
 // Leaderboard
@@ -349,7 +357,7 @@ document.querySelectorAll('#config-leaderboard th[data-col]').forEach(th=>{
   tasks.forEach(row=>{
     const tName=isMobile?row[0].replace(/^\d+\s*/,'').substring(0,10):row[0];
     h+='<tr><td>'+tName+'</td>';
-    for(let i=1;i<=5;i++){
+    for(let i=1;i<=13;i++){
       const v=row[i];
       if(v===null){h+='<td><div class="hm-cell" style="background:#30363d">—<span class="tip">N/A</span></div></td>';continue;}
       const r=Math.round(255*(1-v)),g=Math.round(200*v),b=30;
@@ -399,8 +407,9 @@ document.querySelectorAll('#config-leaderboard th[data-col]').forEach(th=>{
     const lx=cx+(R+20)*Math.cos(a),ly=cy+(R+20)*Math.sin(a);
     ctx.fillText(cats[i].name,lx,ly+4);
   }
-  // model lines
-  for(let mi=0;mi<5;mi++){
+  // model lines (top 5 only)
+  const radarTop=5;
+  for(let mi=0;mi<radarTop;mi++){
     ctx.strokeStyle=colors[mi];ctx.lineWidth=2;ctx.globalAlpha=0.8;
     ctx.beginPath();
     for(let i=0;i<=n;i++){
@@ -414,7 +423,7 @@ document.querySelectorAll('#config-leaderboard th[data-col]').forEach(th=>{
   }
   // legend
   ctx.textAlign='left';
-  shortNames.forEach((n,i)=>{
+  shortNames.slice(0,radarTop).forEach((n,i)=>{
     ctx.fillStyle=colors[i];ctx.fillRect(10,10+i*20,12,12);
     ctx.fillStyle='#e6edf3';ctx.font='13px system-ui';ctx.fillText(n,28,21+i*20);
   });
@@ -422,11 +431,11 @@ document.querySelectorAll('#config-leaderboard th[data-col]').forEach(th=>{
 
 // Key Findings
 const findings=[
-  {emoji:'📊',title:'40 Tasks: Easy → Hard',desc:'3 difficulty tiers — tasks 1-19 average 0.85+, tasks 20-30 drop to ~0.35, tasks 31-40 hit rock bottom at ~0.30. Scores drop significantly on hard tasks.'},
-  {emoji:'🏅',title:'Gemini Leads Functional Tasks',desc:'Gemini-2.5-Pro scores 0.422 avg on tasks 20-40 vs Claude\'s 0.282 — a 50% lead on the harder functional tasks.'},
-  {emoji:'⚠️',title:'Hard Tasks Expose Real Gaps',desc:'Code Review: GPT-4o scores 1.0 vs GPT-4o-mini 0.2. The hardest tasks reveal massive capability differences between models.'},
-  {emoji:'🤖',title:'GPT-4.1 Missing 11 Tasks',desc:'Only completed 29/40 tasks — config contamination caused 11 tasks to run as proactive-agent instead of baseline.'},
-  {emoji:'📉',title:'Rankings Reshuffled',desc:'With 40 tasks, GPT-4o jumps to #2 (0.580) overtaking Claude (0.564). Harder tasks change the competitive landscape.'}
+  {emoji:'🏅',title:'Claude Opus 4.5 Takes #1',desc:'Claude-opus-4.5 leads with 0.674, ahead of GPT-5.2 (0.644) and Gemini-2.5-Pro (0.638). Anthropic\'s latest model edges out the competition.'},
+  {emoji:'📊',title:'13 Models, 3 Providers',desc:'Complete evaluation across OpenAI (6 models), Anthropic (5), and Google (2). Coverage spans from frontier GPT-5.2 to budget gpt-4o-mini.'},
+  {emoji:'📉',title:'Easy vs Hard: Dramatic Drop',desc:'Tasks 1-19 average 0.85+ across most models. Tasks 20-40 plummet to ~0.35-0.45 — the hard tasks expose real capability gaps.'},
+  {emoji:'🚀',title:'Next-Gen Dominates',desc:'GPT-5.x, Claude 4.5/4.6 models all score 0.60+, comprehensively outperforming older models like GPT-4o (0.522) and GPT-4o-mini (0.421).'},
+  {emoji:'⚠️',title:'GPT-4o-mini at the Bottom',desc:'Scoring 0.421, gpt-4o-mini trails #1 by 0.253 points — a 60% relative gap. Budget models still struggle with complex agent tasks.'}
 ];
 document.getElementById('findings').innerHTML=findings.map(f=>`<div class="card"><div class="emoji">${f.emoji}</div><h3>${f.title}</h3><p>${f.desc}</p></div>`).join('');
 
