@@ -25,7 +25,8 @@ select:focus{outline:none;border-color:var(--accent)}
 .dim-label{font-weight:600;font-size:.95rem}
 .dim-letter{font-size:1.4rem;font-weight:bold;color:var(--accent)}
 .dim-bar{height:8px;background:var(--border);border-radius:4px;overflow:hidden;position:relative}
-.dim-fill{height:100%;border-radius:4px;transition:width .5s ease}
+.dim-bar .center-mark{position:absolute;left:50%;top:-2px;width:2px;height:12px;background:var(--muted);opacity:.4;z-index:1}
+.dim-fill{height:100%;border-radius:4px;transition:all .5s ease;position:absolute}
 .dim-poles{display:flex;justify-content:space-between;margin-top:.4rem;font-size:.75rem;color:var(--muted)}
 .grid-16{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;margin-bottom:2rem}
 .grid-cell{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:.6rem;text-align:center;font-size:.8rem;transition:all .2s}
@@ -108,7 +109,18 @@ for(const[key,info]of Object.entries(DIM_INFO)){
 const d=data.dims[key]||{score:.5,direction:"?",confidence:0};
 const pct=Math.round(d.score*100);
 const color=d.score>=.5?info.colors[0]:info.colors[1];
-html+=`<div class="dim-card"><div class="dim-header"><span class="dim-label">${info.label}</span><span class="dim-letter" style="color:${color}">${d.direction}</span></div><div class="dim-bar"><div class="dim-fill" style="width:${pct}%;background:${color}"></div></div><div class="dim-poles"><span>${info.a}</span><span>${info.b}</span></div></div>`;
+// Bidirectional bar: 50% is center, left=first letter, right=second letter
+let barStyle;
+if(pct>=50){
+  //偏左（E/S/T/J），从中点向左填充
+  const w=pct-50;
+  barStyle=`left:${50-w}%;width:${w}%;background:${info.colors[0]}`;
+}else{
+  // 偏右（I/N/F/P），从中点向右填充
+  const w=50-pct;
+  barStyle=`left:50%;width:${w}%;background:${info.colors[1]}`;
+}
+html+=`<div class="dim-card"><div class="dim-header"><span class="dim-label">${info.label}</span><span class="dim-letter" style="color:${color}">${d.direction}</span></div><div class="dim-bar"><div class="center-mark"></div><div class="dim-fill" style="${barStyle}"></div></div><div class="dim-poles"><span>${info.a}</span><span>${info.b}</span></div></div>`;
 }
 el.innerHTML=html;
 }
