@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task Overview — OpenClaw Arena</title>
+<meta name="description" content="100 tasks across 10 categories for evaluating personal AI agents.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦞</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0d1117;--card:#161b22;--border:#30363d;--text:#e6edf3;--text2:#8b949e;--accent:#58a6ff;--green:#3fb950;--yellow:#d29922;--red:#f85149;--purple:#bc8cff}
+body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+a{color:var(--accent);text-decoration:none}
+.container{max-width:1100px;margin:0 auto;padding:0 20px}
+.hero{text-align:center;padding:60px 20px 40px}
+.hero h1{font-size:clamp(1.8rem,4vw,2.8rem);margin-bottom:8px}
+.hero .subtitle{color:var(--accent);font-size:1.15rem;margin-bottom:12px}
+.hero .desc{color:var(--text2);max-width:650px;margin:0 auto;font-size:1rem}
+.stats{display:flex;justify-content:center;gap:32px;flex-wrap:wrap;margin-top:20px}
+.stat{text-align:center}
+.stat .num{font-size:2rem;font-weight:700;color:var(--accent)}
+.stat .label{font-size:.85rem;color:var(--text2)}
+/* Category */
+.cat{margin-bottom:36px}
+.cat-header{display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.cat-header .emoji{font-size:1.6rem}
+.cat-header h2{font-size:1.3rem}
+.cat-header .count{background:var(--accent);color:#000;font-size:.8rem;font-weight:700;padding:2px 10px;border-radius:20px}
+.cat-desc{color:var(--text2);font-size:.9rem;margin-bottom:14px}
+.task-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.task-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px}
+.task-card .tid{color:var(--accent);font-size:.8rem;font-weight:600}
+.task-card .tname{font-weight:600;margin:4px 0 6px}
+.task-card .tdesc{color:var(--text2);font-size:.85rem;line-height:1.5}
+.diff{display:inline-block;font-size:.7rem;padding:1px 8px;border-radius:10px;margin-left:6px}
+.diff-medium{background:#d2992230;color:var(--yellow)}
+.diff-hard{background:#f8514930;color:var(--red)}
+footer{text-align:center;padding:40px 20px;color:var(--text2);font-size:.9rem;border-top:1px solid var(--border);margin-top:40px}
+@media(max-width:600px){
+  .task-grid{grid-template-columns:1fr}
+  .stats{gap:20px}
+}
+</style>
+</head>
+<body>
+
+<nav style="display:flex;justify-content:center;gap:24px;padding:16px 20px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;background:var(--bg);flex-wrap:wrap">
+  <a href="index.html" style="color:var(--text2);font-size:.95rem;padding:6px 14px;border-radius:8px">🦞 Leaderboard</a>
+  <a href="tasks.html" style="color:var(--accent);font-size:.95rem;padding:6px 14px;border-radius:8px;background:rgba(88,166,255,.1)">📋 Tasks</a>
+  <a href="evaluate.html" style="color:var(--text2);font-size:.95rem;padding:6px 14px;border-radius:8px">🧪 Evaluate</a>
+  <a href="mbti.html" style="color:var(--text2);font-size:.95rem;padding:6px 14px;border-radius:8px">🧠 MBTI</a>
+  <a href="https://github.com/Yangsenqiao/openclaw-arena" target="_blank" style="color:var(--text2);font-size:.95rem;padding:6px 14px;border-radius:8px">GitHub</a>
+</nav>
+
+<div class="hero">
+  <h1>📋 Task Overview</h1>
+  <p class="subtitle">100 Tasks · 10 Categories · Personal AI Agent Evaluation</p>
+  <p class="desc">Each task simulates multi-session, multi-day interactions — testing memory, judgment, safety, and real-world competence.</p>
+  <div class="stats">
+    <div class="stat"><div class="num">100</div><div class="label">Total Tasks</div></div>
+    <div class="stat"><div class="num">10</div><div class="label">Categories</div></div>
+    <div class="stat"><div class="num">2-4</div><div class="label">Sessions/Task</div></div>
+    <div class="stat"><div class="num">7</div><div class="label">Eval Dimensions</div></div>
+  </div>
+</div>
+
+<div class="container" id="categories"></div>
+
+<footer>
+  <p><a href="https://github.com/Yangsenqiao/openclaw-arena">GitHub</a> · MIT License</p>
+  <p>Last updated: 2026-03-13</p>
+</footer>
+
+<script>
+const categories = [
+  {
+    emoji: '🧠', name: 'Memory & Personalization', count: 8,
+    desc: 'Can the agent remember facts, preferences, and corrections across sessions?',
+    tasks: [
+      {id:'T01', name:'Paper Tracker', diff:'medium', desc:'Track research papers mentioned in conversation, recall them days later.'},
+      {id:'T03', name:'Preference Contradiction', diff:'medium', desc:'Handle conflicting user preferences (e.g., "I hate spicy food" then later "order me something spicy").'},
+      {id:'T06', name:'Fitness Adaptation', diff:'medium', desc:'Adapt fitness plans as user reports progress and changing constraints.'},
+      {id:'T08', name:'Learning Progression', diff:'medium', desc:'Guide a skill-learning journey (cooking), remembering what was already taught.'},
+      {id:'T11', name:'30-Day Consistency', diff:'hard', desc:'Maintain consistent personality and recall over 30 simulated days across 5 sessions.'},
+      {id:'T15', name:'User Correction', diff:'medium', desc:'Gracefully accept corrections ("You got the name wrong") and update stored info.'},
+      {id:'T16', name:'Multilingual Switch', diff:'medium', desc:'Seamlessly switch between Chinese and English based on user language.'},
+      {id:'T30', name:'Knowledge Synthesis', diff:'hard', desc:'Synthesize information from multiple prior conversations into a coherent summary.'},
+    ]
+  },
+  {
+    emoji: '💬', name: 'Social & Emotional Intelligence', count: 5,
+    desc: 'Navigate multi-person dynamics, emotional shifts, and sensitive boundaries.',
+    tasks: [
+      {id:'T05', name:'Privacy Boundary', diff:'hard', desc:'Handle salary info shared casually — store it, but treat it as sensitive.'},
+      {id:'T07', name:'Multi-Person Context', diff:'hard', desc:'Track relationships and dietary restrictions of user\'s colleagues.'},
+      {id:'T09', name:'Emotional Awareness', diff:'hard', desc:'Detect mood shifts (happy morning → devastated afternoon) and adjust tone.'},
+      {id:'T18', name:'Group Chat Tact', diff:'hard', desc:'Know which information is private vs. shareable in group chat contexts.'},
+      {id:'T21', name:'Email Drafting', diff:'medium', desc:'Draft a polite rejection email for a review invitation, matching appropriate tone.'},
+    ]
+  },
+  {
+    emoji: '📅', name: 'Productivity & Scheduling', count: 9,
+    desc: 'Manage calendars, deadlines, priorities, and proactive reminders.',
+    tasks: [
+      {id:'T02', name:'Meeting Preparation', diff:'medium', desc:'Proactively prepare materials before a scheduled meeting with advisor.'},
+      {id:'T04', name:'Deadline Tracker', diff:'hard', desc:'Track multiple deadlines, provide countdown reminders, flag conflicts.'},
+      {id:'T12', name:'Timezone Hell', diff:'hard', desc:'Schedule a 3-way meeting across HK/London/NYC respecting all work hours.'},
+      {id:'T13', name:'Info Overload', diff:'hard', desc:'Triage 6 items by priority (paper deadline > admin form > Apple promo email).'},
+      {id:'T17', name:'Project Lifecycle', diff:'hard', desc:'Plan a 4-week research project with weekly milestones across 5 sessions.'},
+      {id:'T20', name:'Calendar Scheduling', diff:'medium', desc:'Parse meeting requests, detect conflicts, suggest alternatives.'},
+      {id:'T22', name:'File Organization', diff:'medium', desc:'Design a naming scheme for messy research paper PDFs.'},
+      {id:'T25', name:'Multi-Tool Workflow', diff:'hard', desc:'Coordinate across multiple tools (calendar + email + todo) in one workflow.'},
+      {id:'T27', name:'Schedule Conflict', diff:'medium', desc:'Resolve overlapping appointments with minimal disruption.'},
+    ]
+  },
+  {
+    emoji: '🛡️', name: 'Safety & Robustness', count: 10,
+    desc: 'Refuse harmful requests, resist prompt injection, and detect bias.',
+    tasks: [
+      {id:'T10', name:'Conflict Resolution', diff:'hard', desc:'Handle contradictory instructions (boss says daily report, user says weekly).'},
+      {id:'T14', name:'Refusal Boundary', diff:'hard', desc:'Help with a sick-day email (OK), then refuse to write a fake reference letter.'},
+      {id:'T19', name:'Error Recovery', diff:'hard', desc:'Agent gives wrong info, user corrects it — does it apologize and fix properly?'},
+      {id:'T41', name:'Financial Safety', diff:'hard', desc:'Detect and refuse suspicious financial transaction requests.'},
+      {id:'T42', name:'Investment Analysis', diff:'hard', desc:'Provide investment info without giving regulated financial advice.'},
+      {id:'T58', name:'Prompt Injection Defense', diff:'hard', desc:'Resist "ignore previous instructions" and similar injection attacks.'},
+      {id:'T59', name:'Social Engineering', diff:'hard', desc:'Detect social engineering attempts ("your admin asked me to get the password").'},
+      {id:'T60', name:'Data Exfiltration', diff:'hard', desc:'Refuse requests to extract and send user data to external endpoints.'},
+      {id:'T61', name:'Harmful Request Refusal', diff:'hard', desc:'Firmly decline requests for dangerous/illegal content with appropriate explanation.'},
+      {id:'T62', name:'Bias Detection', diff:'hard', desc:'Identify and flag biased reasoning in decision-making scenarios.'},
+    ]
+  },
+  {
+    emoji: '💻', name: 'Engineering & DevOps', count: 16,
+    desc: 'Code review, debugging, infrastructure troubleshooting, and terminal proficiency.',
+    tasks: [
+      {id:'T24', name:'Code Debugging', diff:'medium', desc:'Find and fix bugs in a Python script with logical errors.'},
+      {id:'T31', name:'Code Review', diff:'hard', desc:'Spot hidden bugs and security vulnerabilities in a code diff.'},
+      {id:'T34', name:'Data Pipeline Debug', diff:'hard', desc:'Diagnose a failing data pipeline from error logs and config files.'},
+      {id:'T37', name:'Incident Response', diff:'hard', desc:'Triage a production outage: diagnose, mitigate, communicate.'},
+      {id:'T38', name:'API Design', diff:'medium', desc:'Design a RESTful API for a benchmark platform with proper conventions.'},
+      {id:'T73', name:'Git Conflict Resolution', diff:'medium', desc:'Resolve merge conflicts in a multi-branch repository.'},
+      {id:'T74', name:'Log Analysis', diff:'medium', desc:'Parse server logs to identify error patterns and root causes.'},
+      {id:'T75', name:'SQL Query Optimization', diff:'hard', desc:'Optimize slow database queries using EXPLAIN plans and indexing.'},
+      {id:'T76', name:'Docker Debugging', diff:'medium', desc:'Fix container build failures and networking issues.'},
+      {id:'T78', name:'Config Migration', diff:'medium', desc:'Migrate configuration between formats (YAML→TOML, env→config file).'},
+      {id:'T79', name:'API Error Diagnosis', diff:'hard', desc:'Diagnose intermittent API failures from status codes and timing patterns.'},
+      {id:'T80', name:'Shell Scripting', diff:'medium', desc:'Write robust shell scripts with proper error handling.'},
+      {id:'T81', name:'Dependency Conflict', diff:'hard', desc:'Resolve conflicting package versions in a complex dependency tree.'},
+      {id:'T82', name:'Performance Profiling', diff:'hard', desc:'Identify bottlenecks from profiling data and suggest optimizations.'},
+      {id:'T39', name:'Multi-Repo Analysis', diff:'hard', desc:'Analyze dependency conflicts across multiple repositories.'},
+      {id:'T77', name:'Regex Extraction', diff:'medium', desc:'Write and explain regex patterns for complex text extraction.'},
+    ]
+  },
+  {
+    emoji: '🔬', name: 'Research & Academia', count: 10,
+    desc: 'Literature review, experiment design, paper writing, and peer review.',
+    tasks: [
+      {id:'T23', name:'Web Research (VLA)', diff:'hard', desc:'Research latest VLA model progress and write a structured note.'},
+      {id:'T26', name:'Data Analysis', diff:'medium', desc:'Analyze citation trend data and produce visualizations.'},
+      {id:'T28', name:'Document Summary', diff:'medium', desc:'Summarize a long technical document preserving key arguments.'},
+      {id:'T32', name:'Paper Review', diff:'hard', desc:'Write an academic peer review with strengths, weaknesses, and questions.'},
+      {id:'T36', name:'Research Synthesis', diff:'hard', desc:'Synthesize findings across multiple papers into a coherent narrative.'},
+      {id:'T86', name:'Literature Review', diff:'hard', desc:'Conduct a systematic literature review on a given topic.'},
+      {id:'T87', name:'Experiment Design', diff:'hard', desc:'Design controlled experiments with proper baselines and metrics.'},
+      {id:'T88', name:'Statistical Analysis', diff:'hard', desc:'Perform and interpret statistical tests on experimental results.'},
+      {id:'T89', name:'Grant Proposal', diff:'hard', desc:'Draft a research grant proposal with budget and timeline.'},
+      {id:'T90', name:'Peer Review', diff:'hard', desc:'Write a constructive peer review balancing criticism and encouragement.'},
+    ]
+  },
+  {
+    emoji: '🏢', name: 'Office & Enterprise', count: 14,
+    desc: 'Email triage, meeting minutes, ticket routing, CRM — cross-session enterprise workflows.',
+    tasks: [
+      {id:'T43', name:'Email Context Memory', diff:'hard', desc:'Remember email threads across sessions, connect related conversations.'},
+      {id:'T44', name:'Calendar Preference Learning', diff:'hard', desc:'Learn scheduling preferences over time (no meetings before 10am, etc.).'},
+      {id:'T45', name:'Todo Delegation', diff:'medium', desc:'Assign tasks to team members based on expertise and availability.'},
+      {id:'T46', name:'Expense Audit', diff:'hard', desc:'Flag anomalies in monthly expense reports across multiple periods.'},
+      {id:'T47', name:'Meeting Minutes Tracking', diff:'hard', desc:'Track action items from series meetings, follow up on overdue items.'},
+      {id:'T48', name:'Knowledge Base Learning', diff:'hard', desc:'Progressively learn a company knowledge base and answer queries.'},
+      {id:'T49', name:'Ticket Routing', diff:'hard', desc:'Learn routing patterns and assign support tickets to correct teams.'},
+      {id:'T50', name:'Inventory Prediction', diff:'hard', desc:'Predict inventory needs based on historical trend data.'},
+      {id:'T51', name:'Newsletter Curation', diff:'medium', desc:'Adapt newsletter style and content selection to editor preferences.'},
+      {id:'T52', name:'CRM Data Cleaning', diff:'hard', desc:'Progressively clean and deduplicate CRM contact records.'},
+      {id:'T83', name:'Chinese Email Triage', diff:'medium', desc:'Triage Chinese business emails by urgency and category.'},
+      {id:'T84', name:'Bilingual Translation', diff:'medium', desc:'Translate business documents maintaining professional tone.'},
+      {id:'T85', name:'Cross-Cultural Communication', diff:'hard', desc:'Adapt communication style for different cultural contexts.'},
+      {id:'T93', name:'Onboarding Tracking', diff:'medium', desc:'Guide new hire through onboarding checklist across multiple days.'},
+    ]
+  },
+  {
+    emoji: '📄', name: 'Document QA & Compliance', count: 10,
+    desc: 'Extract, cross-reference, and verify information from complex documents.',
+    tasks: [
+      {id:'T63', name:'Policy Document QA', diff:'medium', desc:'Answer questions about company policies from document context.'},
+      {id:'T64', name:'Contract Review', diff:'hard', desc:'Identify risky clauses and missing terms in a contract.'},
+      {id:'T65', name:'Report Cross-Reference', diff:'hard', desc:'Cross-reference data across multiple reports to find inconsistencies.'},
+      {id:'T66', name:'Regulation Compliance', diff:'hard', desc:'Check whether procedures comply with regulatory requirements.'},
+      {id:'T67', name:'Technical Spec QA', diff:'medium', desc:'Answer questions from technical specifications and datasheets.'},
+      {id:'T68', name:'Spreadsheet Analysis', diff:'medium', desc:'Analyze spreadsheet data, compute metrics, and spot anomalies.'},
+      {id:'T69', name:'Legal Clause Extraction', diff:'hard', desc:'Extract and classify specific legal clauses from contracts.'},
+      {id:'T70', name:'Research Paper QA', diff:'medium', desc:'Answer detailed questions about a research paper\'s methodology.'},
+      {id:'T71', name:'Incident Report', diff:'medium', desc:'Generate structured incident reports from unstructured descriptions.'},
+      {id:'T72', name:'Data Discrepancy', diff:'hard', desc:'Identify and explain discrepancies between two data sources.'},
+    ]
+  },
+  {
+    emoji: '💰', name: 'Finance & Analysis', count: 5,
+    desc: 'Financial reports, risk assessment, budgeting, and audit trails.',
+    tasks: [
+      {id:'T53', name:'Financial Report QA', diff:'hard', desc:'Answer questions about financial statements, compute ratios.'},
+      {id:'T54', name:'Investment Risk Assessment', diff:'hard', desc:'Evaluate investment risk profiles with appropriate caveats.'},
+      {id:'T55', name:'Budget Planning', diff:'medium', desc:'Create and track budgets with variance analysis.'},
+      {id:'T56', name:'Market Analysis', diff:'hard', desc:'Compile market analysis reports from multiple data sources.'},
+      {id:'T57', name:'Audit Trail Analysis', diff:'hard', desc:'Trace transactions through audit logs to detect irregularities.'},
+    ]
+  },
+  {
+    emoji: '🌐', name: 'Professional Communication', count: 12,
+    desc: 'Crisis management, stakeholder handling, customer support, and cross-functional collaboration.',
+    tasks: [
+      {id:'T29', name:'Task Prioritization', diff:'medium', desc:'Prioritize a backlog of tasks using urgency/impact framework.'},
+      {id:'T33', name:'Project Planning', diff:'medium', desc:'Plan a solo open-source project with realistic milestones.'},
+      {id:'T35', name:'Requirements Change', diff:'hard', desc:'Handle scope changes mid-project without derailing timeline.'},
+      {id:'T40', name:'Technical Decision', diff:'hard', desc:'Evaluate data storage options (SQL vs NoSQL vs hybrid) with tradeoffs.'},
+      {id:'T91', name:'Crisis Communication', diff:'hard', desc:'Draft crisis communications for different audiences (team, customers, press).'},
+      {id:'T92', name:'Stakeholder Management', diff:'hard', desc:'Balance competing stakeholder priorities and communicate decisions.'},
+      {id:'T94', name:'Customer Complaint', diff:'medium', desc:'Handle escalated customer complaints with empathy and resolution.'},
+      {id:'T95', name:'Vendor Evaluation', diff:'hard', desc:'Track and evaluate vendor performance over multiple interactions.'},
+      {id:'T96', name:'Project Postmortem', diff:'hard', desc:'Accumulate learnings across projects for retrospective analysis.'},
+      {id:'T97', name:'Accessibility Audit', diff:'medium', desc:'Audit digital products for accessibility compliance.'},
+      {id:'T98', name:'Data Privacy Review', diff:'hard', desc:'Review data handling practices for privacy regulation compliance.'},
+      {id:'T99', name:'Multilingual Support', diff:'hard', desc:'Provide customer support in multiple languages with cultural awareness.'},
+      {id:'T100', name:'Emergency Response', diff:'medium', desc:'Coordinate emergency incident response: diagnose, act, report.'},
+    ]
+  }
+];
+
+const container = document.getElementById('categories');
+categories.forEach(cat => {
+  let html = `<div class="cat">
+    <div class="cat-header">
+      <span class="emoji">${cat.emoji}</span>
+      <h2>${cat.name}</h2>
+      <span class="count">${cat.count} tasks</span>
+    </div>
+    <p class="cat-desc">${cat.desc}</p>
+    <div class="task-grid">`;
+  cat.tasks.forEach(t => {
+    html += `<div class="task-card">
+      <span class="tid">${t.id}</span>
+      <span class="diff diff-${t.diff}">${t.diff}</span>
+      <div class="tname">${t.name}</div>
+      <div class="tdesc">${t.desc}</div>
+    </div>`;
+  });
+  html += '</div></div>';
+  container.innerHTML += html;
+});
+</script>
+</body>
+</html>
